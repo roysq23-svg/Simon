@@ -1,546 +1,547 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PARTICLE SIM</title>
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: var(--color-background-primary);
+  --bg2: var(--color-background-secondary);
+  --bg3: var(--color-background-tertiary);
+  --text: var(--color-text-primary);
+  --text2: var(--color-text-secondary);
+  --border: var(--color-border-tertiary);
+  --border2: var(--color-border-secondary);
+  --green: #3B6D11;
+  --green-bg: #EAF3DE;
+  --green-mid: #639922;
+  --teal: #0F6E56;
+  --teal-bg: #E1F5EE;
+  --amber: #854F0B;
+  --amber-bg: #FAEEDA;
+  --blue: #185FA5;
+  --blue-bg: #E6F1FB;
+  --coral-bg: #FAECE7;
+  --coral: #993C1D;
+}
+body { font-family: var(--font-sans); background: transparent; color: var(--text); }
+.wrap { padding: 1rem 0 2rem; max-width: 680px; }
 
-  :root {
-    --bg: #0d0d0d;
-    --panel: #141414;
-    --border: #2a2a2a;
-    --text: #e0e0e0;
-    --muted: #555;
-    --accent: #f97316;
-  }
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+.logo { width: 40px; height: 40px; background: var(--green-bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 0.5px solid var(--border); }
+.title-block h1 { font-size: 20px; font-weight: 500; color: var(--text); }
+.title-block p { font-size: 13px; color: var(--text2); margin-top: 2px; }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+.progress-bar-wrap { background: var(--bg2); border-radius: 20px; height: 6px; margin-bottom: 1.5rem; border: 0.5px solid var(--border); }
+.progress-bar { height: 6px; border-radius: 20px; background: var(--green-mid); transition: width 0.4s ease; }
+.progress-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    user-select: none;
-  }
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; background: var(--bg2); border-radius: 10px; padding: 4px; border: 0.5px solid var(--border); }
+.tab { flex: 1; padding: 7px 0; text-align: center; font-size: 13px; color: var(--text2); border-radius: 7px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; font-family: var(--font-sans); }
+.tab.active { background: var(--bg); color: var(--text); font-weight: 500; border: 0.5px solid var(--border); }
+.tab:hover:not(.active) { color: var(--text); background: var(--bg); }
 
-  #header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 14px;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel);
-    flex-shrink: 0;
-  }
+.section { display: none; }
+.section.active { display: block; }
 
-  #title {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 3px;
-    color: var(--accent);
-  }
+.lesson-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; cursor: pointer; transition: border-color 0.2s; display: flex; align-items: center; gap: 12px; }
+.lesson-card:hover { border-color: var(--border2); }
+.lesson-card.done .icon { background: var(--green-bg); color: var(--green); }
+.lesson-card.active-lesson { border: 2px solid var(--green-mid); }
+.icon { width: 36px; height: 36px; border-radius: 8px; background: var(--bg2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; color: var(--text2); border: 0.5px solid var(--border); }
+.lesson-info { flex: 1; }
+.lesson-info h3 { font-size: 14px; font-weight: 500; color: var(--text); }
+.lesson-info p { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+.badge.beginner { background: var(--green-bg); color: var(--green); }
+.badge.intermediate { background: var(--amber-bg); color: var(--amber); }
+.badge.advanced { background: var(--coral-bg); color: var(--coral); }
 
-  #stats {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
+.lesson-view { display: none; }
+.lesson-view.active { display: block; }
+.back-btn { font-size: 13px; color: var(--text2); background: none; border: none; cursor: pointer; padding: 0 0 1rem; font-family: var(--font-sans); display: flex; align-items: center; gap: 4px; }
+.back-btn:hover { color: var(--text); }
+.lesson-title { font-size: 17px; font-weight: 500; margin-bottom: 0.75rem; }
+.lesson-desc { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 1.25rem; }
 
-  #layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
+.code-block { background: #1a1a2e; border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 13px; color: #c9d1d9; margin-bottom: 1.25rem; overflow-x: auto; line-height: 1.7; border: 0.5px solid #30363d; }
+.kw { color: #ff7b72; }
+.fn { color: #d2a8ff; }
+.str { color: #a5d6ff; }
+.num { color: #79c0ff; }
+.com { color: #8b949e; font-style: italic; }
 
-  #sidebar {
-    width: 140px;
-    flex-shrink: 0;
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
+.editor-label { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+.code-editor { width: 100%; min-height: 100px; background: #1a1a2e; color: #c9d1d9; font-family: var(--font-mono); font-size: 13px; border: 0.5px solid #30363d; border-radius: var(--border-radius-md); padding: 12px; line-height: 1.7; resize: vertical; }
+.code-editor:focus { outline: none; border-color: var(--green-mid); }
 
-  #sidebar::-webkit-scrollbar { width: 3px; }
-  #sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+.run-btn { background: var(--green-bg); color: var(--green); border: 0.5px solid #97C459; border-radius: var(--border-radius-md); padding: 8px 20px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: var(--font-sans); margin-top: 10px; transition: all 0.2s; }
+.run-btn:hover { background: #d0e8b0; }
+.run-btn:active { transform: scale(0.98); }
 
-  .section-label {
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-    padding: 10px 10px 5px;
-    text-transform: uppercase;
-  }
+.output-box { margin-top: 12px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--border-radius-md); padding: 12px; font-family: var(--font-mono); font-size: 13px; color: var(--text); min-height: 48px; display: none; }
+.output-box.visible { display: block; }
+.output-success { color: var(--green); }
+.output-error { color: #e24b4a; }
 
-  .mat-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    text-align: left;
-    width: 100%;
-    transition: background 0.1s;
-    border-left: 2px solid transparent;
-  }
+.quiz-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.quiz-q { font-size: 14px; font-weight: 500; margin-bottom: 1rem; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt { padding: 10px 14px; border: 0.5px solid var(--border); border-radius: var(--border-radius-md); cursor: pointer; font-size: 14px; background: var(--bg2); transition: all 0.15s; font-family: var(--font-sans); color: var(--text); text-align: left; }
+.quiz-opt:hover { border-color: var(--border2); background: var(--bg); }
+.quiz-opt.correct { background: var(--green-bg); border-color: #97C459; color: var(--green); }
+.quiz-opt.wrong { background: #FCEBEB; border-color: #F09595; color: #A32D2D; }
+.quiz-feedback { margin-top: 10px; font-size: 13px; padding: 8px 12px; border-radius: var(--border-radius-md); display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: var(--green-bg); color: var(--green); }
+.quiz-feedback.fail { background: #FCEBEB; color: #A32D2D; }
 
-  .mat-btn:hover { background: rgba(255,255,255,0.04); }
-  .mat-btn.active {
-    background: rgba(249,115,22,0.1);
-    border-left-color: var(--accent);
-    color: #fff;
-  }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+.stat-card { background: var(--bg2); border-radius: var(--border-radius-md); padding: 14px; text-align: center; border: 0.5px solid var(--border); }
+.stat-num { font-size: 24px; font-weight: 500; color: var(--text); }
+.stat-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
-  .mat-dot {
-    width: 12px; height: 12px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
+.ai-chat { display: flex; flex-direction: column; gap: 10px; }
+.ai-msg { padding: 12px 14px; border-radius: var(--border-radius-lg); font-size: 14px; line-height: 1.6; max-width: 90%; }
+.ai-msg.bot { background: var(--blue-bg); color: var(--blue); border-radius: 4px 12px 12px 12px; align-self: flex-start; border: 0.5px solid #B5D4F4; }
+.ai-msg.user { background: var(--teal-bg); color: var(--teal); border-radius: 12px 4px 12px 12px; align-self: flex-end; text-align: right; border: 0.5px solid #9FE1CB; }
+.ai-input-row { display: flex; gap: 8px; margin-top: 8px; }
+.ai-input-row input { flex: 1; }
+.ai-send { background: var(--blue-bg); color: var(--blue); border: 0.5px solid #B5D4F4; border-radius: var(--border-radius-md); padding: 8px 16px; font-size: 14px; cursor: pointer; font-family: var(--font-sans); white-space: nowrap; }
+.ai-send:hover { background: #d0e4f7; }
+.thinking { opacity: 0.6; font-style: italic; }
 
-  .sep { height: 1px; background: var(--border); margin: 6px 0; }
-
-  .slider-wrap { padding: 6px 10px 10px; }
-  .slider-wrap label { font-size: 9px; color: var(--muted); letter-spacing: 1px; display: block; margin-bottom: 5px; }
-  input[type=range] {
-    width: 100%; height: 3px; cursor: pointer;
-    accent-color: var(--accent);
-  }
-  .slider-val { font-size: 10px; color: var(--text); text-align: right; margin-top: 3px; }
-
-  #canvas-wrap {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    cursor: crosshair;
-  }
-
-  canvas { display: block; }
-
-  #bottombar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 14px;
-    border-top: 1px solid var(--border);
-    background: var(--panel);
-    flex-shrink: 0;
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .hint { color: var(--text); }
-  .hint span { color: var(--accent); margin-right: 4px; }
-
-  #clear-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 4px 12px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.15s;
-  }
-  #clear-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  #pause-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    padding: 4px 12px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.15s;
-    margin-right: 6px;
-  }
-  #pause-btn:hover, #pause-btn.active { border-color: #3b82f6; color: #3b82f6; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+.chip { font-size: 12px; padding: 5px 12px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text2); transition: all 0.15s; font-family: var(--font-sans); }
+.chip:hover { background: var(--bg); color: var(--text); }
 </style>
-</head>
-<body>
 
-<div id="header">
-  <div id="title">PARTICLE // SIM</div>
-  <div id="stats">particles: <span id="pcount">0</span> &nbsp;|&nbsp; fps: <span id="fps">0</span></div>
+<div class="wrap">
+<h2 class="sr-only">Plataforma interactiva para aprender Python con lecciones, ejercicios y asistente IA</h2>
+
+<div class="header">
+  <div class="logo">🐍</div>
+  <div class="title-block">
+    <h1>PyLearn</h1>
+    <p>Aprende Python paso a paso con ejercicios y IA</p>
+  </div>
 </div>
 
-<div id="layout">
-  <div id="sidebar">
-    <div class="section-label">Materials</div>
-    <button class="mat-btn active" onclick="selectMat('sand',this)"><div class="mat-dot" style="background:#c2a35a"></div>Sand</button>
-    <button class="mat-btn" onclick="selectMat('water',this)"><div class="mat-dot" style="background:#3b82f6"></div>Water</button>
-    <button class="mat-btn" onclick="selectMat('fire',this)"><div class="mat-dot" style="background:#ef4444"></div>Fire</button>
-    <button class="mat-btn" onclick="selectMat('smoke',this)"><div class="mat-dot" style="background:#6b7280"></div>Smoke</button>
-    <button class="mat-btn" onclick="selectMat('wood',this)"><div class="mat-dot" style="background:#7c4f2a"></div>Wood</button>
-    <button class="mat-btn" onclick="selectMat('oil',this)"><div class="mat-dot" style="background:#78350f"></div>Oil</button>
-    <button class="mat-btn" onclick="selectMat('stone',this)"><div class="mat-dot" style="background:#6b7280"></div>Stone</button>
-    <button class="mat-btn" onclick="selectMat('ice',this)"><div class="mat-dot" style="background:#bae6fd"></div>Ice</button>
-    <button class="mat-btn" onclick="selectMat('lava',this)"><div class="mat-dot" style="background:#f97316"></div>Lava</button>
-    <button class="mat-btn" onclick="selectMat('acid',this)"><div class="mat-dot" style="background:#84cc16"></div>Acid</button>
-    <button class="mat-btn" onclick="selectMat('steam',this)"><div class="mat-dot" style="background:#94a3b8"></div>Steam</button>
-    <button class="mat-btn" onclick="selectMat('gunpowder',this)"><div class="mat-dot" style="background:#3a3530"></div>Powder</button>
-    <button class="mat-btn" onclick="selectMat('plant',this)"><div class="mat-dot" style="background:#16a34a"></div>Plant</button>
-    <button class="mat-btn" onclick="selectMat('erase',this)"><div class="mat-dot" style="background:#374151;border:1px solid #555"></div>Erase</button>
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-num" id="s-done">0</div><div class="stat-lbl">lecciones</div></div>
+  <div class="stat-card"><div class="stat-num" id="s-pts">0</div><div class="stat-lbl">puntos</div></div>
+  <div class="stat-card"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">racha días</div></div>
+</div>
 
-    <div class="sep"></div>
-    <div class="section-label">Brush size</div>
-    <div class="slider-wrap">
-      <label>SIZE</label>
-      <input type="range" min="1" max="20" value="5" id="brush-size"
-        oninput="brushSize=+this.value; document.getElementById('bval').textContent=this.value">
-      <div class="slider-val" id="bval">5</div>
+<div class="progress-label" id="prog-label">Progreso: 0 de 6 lecciones completadas</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('lecciones')">Lecciones</button>
+  <button class="tab" onclick="switchTab('ejercicios')">Ejercicios</button>
+  <button class="tab" onclick="switchTab('quiz')">Quiz</button>
+  <button class="tab" onclick="switchTab('asistente')">Asistente IA</button>
+</div>
+
+<div id="tab-lecciones" class="section active">
+  <div id="lesson-list">
+    <div class="lesson-card" id="lc-0" onclick="openLesson(0)">
+      <div class="icon">📘</div>
+      <div class="lesson-info"><h3>Variables y tipos de datos</h3><p>Enteros, cadenas, flotantes y booleanos</p></div>
+      <span class="badge beginner">Básico</span>
+    </div>
+    <div class="lesson-card" id="lc-1" onclick="openLesson(1)">
+      <div class="icon">🔁</div>
+      <div class="lesson-info"><h3>Bucles for y while</h3><p>Repite código con elegancia</p></div>
+      <span class="badge beginner">Básico</span>
+    </div>
+    <div class="lesson-card" id="lc-2" onclick="openLesson(2)">
+      <div class="icon">❓</div>
+      <div class="lesson-info"><h3>Condicionales if/else</h3><p>Toma decisiones en tu código</p></div>
+      <span class="badge beginner">Básico</span>
+    </div>
+    <div class="lesson-card" id="lc-3" onclick="openLesson(3)">
+      <div class="icon">⚙️</div>
+      <div class="lesson-info"><h3>Funciones</h3><p>Organiza y reutiliza tu código</p></div>
+      <span class="badge intermediate">Intermedio</span>
+    </div>
+    <div class="lesson-card" id="lc-4" onclick="openLesson(4)">
+      <div class="icon">📋</div>
+      <div class="lesson-info"><h3>Listas y diccionarios</h3><p>Almacena colecciones de datos</p></div>
+      <span class="badge intermediate">Intermedio</span>
+    </div>
+    <div class="lesson-card" id="lc-5" onclick="openLesson(5)">
+      <div class="icon">🏗️</div>
+      <div class="lesson-info"><h3>Clases y objetos</h3><p>Programación orientada a objetos</p></div>
+      <span class="badge advanced">Avanzado</span>
     </div>
   </div>
-
-  <div id="canvas-wrap">
-    <canvas id="c"></canvas>
-  </div>
+  <div id="lesson-view" class="lesson-view"></div>
 </div>
 
-<div id="bottombar">
-  <div style="display:flex;gap:16px">
-    <div class="hint"><span>Drag</span>Dibujar</div>
-    <div class="hint"><span>R</span>Limpiar</div>
-    <div class="hint"><span>Space</span>Pausa</div>
+<div id="tab-ejercicios" class="section">
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">Practica escribiendo código real. El simulador ejecuta tu código Python básico.</p>
+  <div id="editor-lbl" class="editor-label">Ejercicio: imprime los números del 1 al 5 usando un bucle</div>
+  <textarea class="code-editor" id="code-editor" spellcheck="false" placeholder="# Escribe tu código Python aquí...
+for i in range(1, 6):
+    print(i)"></textarea>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+    <button class="run-btn" onclick="runCode()">▶ Ejecutar código</button>
+    <button class="run-btn" style="background:var(--amber-bg);color:var(--amber);border-color:#FAC775;" onclick="loadExercise()">Siguiente ejercicio</button>
   </div>
-  <div style="display:flex;gap:6px;align-items:center">
-    <button id="pause-btn" onclick="togglePause()">&#9646;&#9646; PAUSA</button>
-    <button id="clear-btn" onclick="clearGrid()">&#x2715; LIMPIAR</button>
+  <div class="output-box" id="output-box"></div>
+</div>
+
+<div id="tab-quiz" class="section">
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">Pon a prueba tus conocimientos de Python.</p>
+  <div id="quiz-container"></div>
+  <button class="run-btn" onclick="loadQuiz()" style="margin-top:4px;">Nuevo quiz</button>
+</div>
+
+<div id="tab-asistente" class="section">
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;">Pregúntale al asistente sobre cualquier concepto de Python.</p>
+  <div class="chips">
+    <button class="chip" onclick="askChip('¿Qué es una lista en Python?')">¿Qué es una lista?</button>
+    <button class="chip" onclick="askChip('¿Cómo funciona range()?')">¿Cómo funciona range()?</button>
+    <button class="chip" onclick="askChip('¿Cuándo usar una función?')">¿Cuándo usar funciones?</button>
+    <button class="chip" onclick="askChip('Explícame los diccionarios')">Diccionarios</button>
   </div>
+  <div class="ai-chat" id="ai-chat">
+    <div class="ai-msg bot">¡Hola! Soy tu asistente de Python. Puedes preguntarme sobre cualquier concepto: variables, bucles, funciones, listas... ¡lo que quieras! 🐍</div>
+  </div>
+  <div class="ai-input-row">
+    <input type="text" id="ai-input" placeholder="Pregunta sobre Python..." onkeydown="if(event.key==='Enter')sendAI()" />
+    <button class="ai-send" onclick="sendAI()">Preguntar ↗</button>
+  </div>
+</div>
 </div>
 
 <script>
-const EMPTY=0,SAND=1,WATER=2,FIRE=3,SMOKE=4,WOOD=5,STONE=6,ICE=7,LAVA=8,ACID=9,STEAM=10,GUNPOWDER=11,PLANT=12,OIL=13;
+const LESSONS = [
+  {
+    title: "Variables y tipos de datos",
+    desc: "En Python, las variables almacenan datos. No necesitas declarar el tipo — Python lo detecta automáticamente. Hay cuatro tipos básicos: int (enteros), float (decimales), str (cadenas de texto) y bool (verdadero/falso).",
+    code: `<span class="com"># Tipos de datos en Python</span>
+nombre = <span class="str">"Ana"</span>          <span class="com"># str</span>
+edad = <span class="num">25</span>               <span class="com"># int</span>
+altura = <span class="num">1.65</span>          <span class="com"># float</span>
+estudiante = <span class="kw">True</span>      <span class="com"># bool</span>
 
-const MAT_MAP={sand:SAND,water:WATER,fire:FIRE,smoke:SMOKE,wood:WOOD,stone:STONE,ice:ICE,lava:LAVA,acid:ACID,steam:STEAM,gunpowder:GUNPOWDER,plant:PLANT,oil:OIL,erase:EMPTY};
+<span class="fn">print</span>(<span class="str">f"Hola, {nombre}!"</span>)
+<span class="fn">print</span>(<span class="str">f"Tienes {edad} años"</span>)
+<span class="fn">print</span>(<span class="fn">type</span>(altura))        <span class="com"># &lt;class 'float'&gt;</span>`,
+    starter: `# Prueba: crea una variable con tu nombre e imprímela
+nombre = "Tu nombre"
+print("Hola,", nombre)`
+  },
+  {
+    title: "Bucles for y while",
+    desc: "Los bucles te permiten repetir acciones. El bucle `for` recorre una secuencia; el `while` repite mientras una condición sea verdadera.",
+    code: `<span class="com"># Bucle for con range</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="fn">print</span>(<span class="str">f"Número: {i}"</span>)
 
-const BASE_COLOR={
-  [EMPTY]:[13,13,13],[SAND]:[194,163,90],[WATER]:[59,130,246],[FIRE]:[239,68,68],
-  [SMOKE]:[107,114,128],[WOOD]:[124,79,42],[STONE]:[100,106,118],[ICE]:[186,230,253],
-  [LAVA]:[249,115,22],[ACID]:[132,204,22],[STEAM]:[148,163,184],[GUNPOWDER]:[58,53,48],
-  [PLANT]:[22,163,74],[OIL]:[90,45,15]
-};
+<span class="com"># Bucle while</span>
+contador = <span class="num">0</span>
+<span class="kw">while</span> contador < <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="str">"Repetición"</span>, contador)
+    contador += <span class="num">1</span>`,
+    starter: `# Imprime la tabla del 3 (del 3 al 30)
+for i in range(1, 11):
+    print(3, "x", i, "=", 3 * i)`
+  },
+  {
+    title: "Condicionales if/else",
+    desc: "Las condiciones permiten que tu programa tome decisiones. Usa `if`, `elif` y `else` para controlar el flujo.",
+    code: `edad = <span class="num">18</span>
 
-const IS_SOLID=t=>t===WOOD||t===STONE||t===ICE||t===PLANT;
-const IS_LIQUID=t=>t===WATER||t===ACID||t===OIL||t===LAVA;
-const IS_GAS=t=>t===FIRE||t===SMOKE||t===STEAM;
-const IS_POWDER=t=>t===SAND||t===GUNPOWDER;
-const IS_FLAMMABLE=t=>t===WOOD||t===OIL||t===GUNPOWDER||t===PLANT;
+<span class="kw">if</span> edad >= <span class="num">18</span>:
+    <span class="fn">print</span>(<span class="str">"Mayor de edad"</span>)
+<span class="kw">elif</span> edad >= <span class="num">13</span>:
+    <span class="fn">print</span>(<span class="str">"Adolescente"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Niño"</span>)`,
+    starter: `# Clasifica un número: positivo, negativo o cero
+numero = 7
+if numero > 0:
+    print("Positivo")
+elif numero < 0:
+    print("Negativo")
+else:
+    print("Cero")`
+  },
+  {
+    title: "Funciones",
+    desc: "Las funciones agrupan código reutilizable. Se definen con `def`, pueden recibir parámetros y devolver valores con `return`.",
+    code: `<span class="kw">def</span> <span class="fn">saludar</span>(nombre, formal=<span class="kw">False</span>):
+    <span class="kw">if</span> formal:
+        <span class="kw">return</span> <span class="str">f"Buenos días, {nombre}."</span>
+    <span class="kw">return</span> <span class="str">f"¡Hola, {nombre}!"</span>
 
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-const wrap=document.getElementById('canvas-wrap');
+<span class="fn">print</span>(<span class="fn">saludar</span>(<span class="str">"María"</span>))
+<span class="fn">print</span>(<span class="fn">saludar</span>(<span class="str">"Sr. García"</span>, formal=<span class="kw">True</span>))`,
+    starter: `# Crea una función que calcule el área de un rectángulo
+def area(base, altura):
+    return base * altura
 
-let W,H,COLS,ROWS;
-let grid,color,updated,imageData,pixels;
-let currentMat=SAND,brushSize=5;
-let mouseDown=false,paused=false;
-let fpsTimer=0,frameCount=0,currentFps=0;
-let tick=0;
+print(area(5, 3))`
+  },
+  {
+    title: "Listas y diccionarios",
+    desc: "Las listas almacenan secuencias ordenadas de elementos. Los diccionarios almacenan pares clave-valor para búsquedas rápidas.",
+    code: `<span class="com"># Lista</span>
+frutas = [<span class="str">"manzana"</span>, <span class="str">"pera"</span>, <span class="str">"uva"</span>]
+frutas.<span class="fn">append</span>(<span class="str">"kiwi"</span>)
+<span class="fn">print</span>(frutas[<span class="num">0</span>])        <span class="com"># manzana</span>
 
-function resize(){
-  W=wrap.clientWidth; H=wrap.clientHeight;
-  canvas.width=W; canvas.height=H;
-  COLS=Math.floor(W/2); ROWS=Math.floor(H/2);
-  initGrid();
-  imageData=ctx.createImageData(W,H);
-  pixels=imageData.data;
+<span class="com"># Diccionario</span>
+persona = {
+    <span class="str">"nombre"</span>: <span class="str">"Luis"</span>,
+    <span class="str">"edad"</span>: <span class="num">30</span>
 }
+<span class="fn">print</span>(persona[<span class="str">"nombre"</span>])`,
+    starter: `# Crea una lista de 5 países e imprímelos con un bucle
+paises = ["Perú", "México", "España", "Argentina", "Chile"]
+for p in paises:
+    print(p)`
+  },
+  {
+    title: "Clases y objetos",
+    desc: "La programación orientada a objetos organiza el código en clases. Una clase es un molde; un objeto es una instancia de ese molde.",
+    code: `<span class="kw">class</span> <span class="fn">Perro</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, nombre, raza):
+        <span class="kw">self</span>.nombre = nombre
+        <span class="kw">self</span>.raza = raza
 
-function initGrid(){
-  grid=new Uint8Array(COLS*ROWS);
-  color=new Uint8Array(COLS*ROWS*3);
-  updated=new Uint8Array(COLS*ROWS);
-}
+    <span class="kw">def</span> <span class="fn">ladrar</span>(<span class="kw">self</span>):
+        <span class="kw">return</span> <span class="str">f"{self.nombre} dice: ¡Guau!"</span>
 
-function clearGrid(){ grid.fill(0); color.fill(0); }
+mi_perro = <span class="fn">Perro</span>(<span class="str">"Rex"</span>, <span class="str">"Labrador"</span>)
+<span class="fn">print</span>(mi_perro.<span class="fn">ladrar</span>())`,
+    starter: `# Crea una clase Círculo con radio y método para calcular área
+import math
+class Circulo:
+    def __init__(self, radio):
+        self.radio = radio
+    def area(self):
+        return math.pi * self.radio ** 2
 
-const idx=(x,y)=>y*COLS+x;
-const inBounds=(x,y)=>x>=0&&y>=0&&x<COLS&&y<ROWS;
-const get=(x,y)=>inBounds(x,y)?grid[idx(x,y)]:STONE;
-const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const chance=p=>Math.random()<p;
-
-function set(x,y,type){
-  if(!inBounds(x,y))return;
-  const i=idx(x,y); grid[i]=type;
-  const j=i*3;
-  if(type===EMPTY){color[j]=color[j+1]=color[j+2]=0;return;}
-  const b=BASE_COLOR[type];
-  color[j]=Math.min(255,Math.max(0,b[0]+rnd(-15,15)));
-  color[j+1]=Math.min(255,Math.max(0,b[1]+rnd(-10,10)));
-  color[j+2]=Math.min(255,Math.max(0,b[2]+rnd(-10,10)));
-}
-
-function swap(x1,y1,x2,y2){
-  if(!inBounds(x2,y2))return;
-  const i1=idx(x1,y1),i2=idx(x2,y2);
-  let t=grid[i1];grid[i1]=grid[i2];grid[i2]=t;
-  const j1=i1*3,j2=i2*3;
-  let r=color[j1],g=color[j1+1],b=color[j1+2];
-  color[j1]=color[j2];color[j1+1]=color[j2+1];color[j1+2]=color[j2+2];
-  color[j2]=r;color[j2+1]=g;color[j2+2]=b;
-}
-
-function step(){
-  tick++;
-  updated.fill(0);
-  for(let y=ROWS-1;y>=0;y--){
-    const ltr=(tick+y)%2===0;
-    for(let xi=0;xi<COLS;xi++){
-      const x=ltr?xi:(COLS-1-xi);
-      const i=idx(x,y);
-      if(updated[i])continue;
-      const t=grid[i];
-      if(t===EMPTY)continue;
-      if(IS_POWDER(t))       stepPowder(x,y,t,i);
-      else if(IS_LIQUID(t))  stepLiquid(x,y,t,i);
-      else if(t===FIRE)      stepFire(x,y,i);
-      else if(t===SMOKE)     stepSmoke(x,y,i);
-      else if(t===STEAM)     stepSteam(x,y,i);
-      else if(t===LAVA)      stepLava(x,y,i);
-      else if(t===ICE)       stepIce(x,y,i);
-      else if(t===PLANT)     stepPlant(x,y,i);
-      else if(t===ACID)      stepAcid(x,y,i);
-    }
+c = Circulo(5)
+print(round(c.area(), 2))`
   }
+];
+
+const EXERCISES = [
+  { lbl: "Imprime los números del 1 al 10", starter: "for i in range(1, 11):\n    print(i)" },
+  { lbl: "Crea una función que sume dos números", starter: "def sumar(a, b):\n    return a + b\n\nprint(sumar(3, 7))" },
+  { lbl: "Filtra los números pares de una lista", starter: "numeros = [1, 2, 3, 4, 5, 6, 7, 8]\npares = [n for n in numeros if n % 2 == 0]\nprint(pares)" },
+  { lbl: "Cuenta vocales en una cadena", starter: 'texto = "Hola mundo Python"\nvocales = sum(1 for c in texto.lower() if c in "aeiouáéíóú")\nprint("Vocales:", vocales)' },
+  { lbl: "Calcula el factorial de un número", starter: "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5))" },
+];
+
+const QUIZZES = [
+  { q: "¿Cuál es el resultado de type(3.14) en Python?", opts: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'double'>"], ans: 1 },
+  { q: "¿Qué palabra clave se usa para definir una función en Python?", opts: ["function", "func", "def", "define"], ans: 2 },
+  { q: "¿Cuál de estas es una lista válida en Python?", opts: ['{"a": 1, "b": 2}', '(1, 2, 3)', '[1, 2, 3]', '{1, 2, 3}'], ans: 2 },
+  { q: "¿Qué devuelve range(3)?", opts: ["[0, 1, 2, 3]", "[1, 2, 3]", "0, 1, 2", "[0, 1, 2]"], ans: 3 },
+  { q: "¿Cómo se accede al primer elemento de lista = [10, 20, 30]?", opts: ["lista[1]", "lista.first()", "lista[0]", "lista(-1)"], ans: 2 },
+  { q: "¿Qué operador se usa para potencia en Python?", opts: ["^", "**", "pow()", "^^"], ans: 1 },
+  { q: "¿Cuál es el resultado de 7 // 2 en Python?", opts: ["3.5", "4", "3", "2"], ans: 2 },
+  { q: "¿Qué método añade un elemento al final de una lista?", opts: [".add()", ".push()", ".insert()", ".append()"], ans: 3 },
+];
+
+let done = new Set();
+let pts = 0;
+let exIdx = 0;
+let quizPool = [];
+let chatHistory = [];
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['lecciones','ejercicios','quiz','asistente'][i] === name));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'quiz') loadQuiz();
 }
 
-function stepPowder(x,y,t,i){
-  if(get(x,y+1)===EMPTY||IS_LIQUID(get(x,y+1))){swap(x,y,x,y+1);updated[idx(x,y+1)]=1;return;}
-  const d=chance(0.5)?1:-1;
-  if(inBounds(x+d,y+1)&&(get(x+d,y+1)===EMPTY||IS_LIQUID(get(x+d,y+1)))){swap(x,y,x+d,y+1);updated[idx(x+d,y+1)]=1;return;}
-  if(inBounds(x-d,y+1)&&(get(x-d,y+1)===EMPTY||IS_LIQUID(get(x-d,y+1)))){swap(x,y,x-d,y+1);updated[idx(x-d,y+1)]=1;return;}
-  if(t===GUNPOWDER){
-    for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-      if(get(nx,ny)===FIRE||get(nx,ny)===LAVA){
-        set(x,y,FIRE);updated[i]=1;
-        for(let ex=-3;ex<=3;ex++)for(let ey=-3;ey<=3;ey++)
-          if(ex*ex+ey*ey<=9&&chance(0.65)&&inBounds(x+ex,y+ey))set(x+ex,y+ey,FIRE);
-        return;
+function openLesson(idx) {
+  document.getElementById('lesson-list').style.display = 'none';
+  const lv = document.getElementById('lesson-view');
+  lv.classList.add('active');
+  const l = LESSONS[idx];
+  lv.innerHTML = `<button class="back-btn" onclick="closeLesson()">← Volver a lecciones</button>
+    <div class="lesson-title">${l.title}</div>
+    <div class="lesson-desc">${l.desc}</div>
+    <div class="editor-label">Ejemplo de código:</div>
+    <div class="code-block">${l.code}</div>
+    <div class="editor-label">Tu turno — prueba este ejercicio:</div>
+    <textarea class="code-editor" id="lesson-editor" spellcheck="false">${l.starter}</textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="run-btn" onclick="runLessonCode(${idx})">▶ Ejecutar</button>
+      <button class="run-btn" style="background:var(--green-bg);color:var(--green);border-color:#97C459;" onclick="completeLesson(${idx})">✓ Marcar completada</button>
+    </div>
+    <div class="output-box" id="lesson-output"></div>`;
+}
+
+function closeLesson() {
+  document.getElementById('lesson-list').style.display = '';
+  document.getElementById('lesson-view').classList.remove('active');
+  document.getElementById('lesson-view').innerHTML = '';
+}
+
+function completeLesson(idx) {
+  if (!done.has(idx)) { done.add(idx); pts += 50; }
+  document.getElementById('lc-' + idx).classList.add('done');
+  document.getElementById('lc-' + idx).querySelector('.icon').textContent = '✓';
+  updateStats();
+  closeLesson();
+}
+
+function updateStats() {
+  document.getElementById('s-done').textContent = done.size;
+  document.getElementById('s-pts').textContent = pts;
+  document.getElementById('s-streak').textContent = done.size > 0 ? 1 : 0;
+  const pct = Math.round((done.size / LESSONS.length) * 100);
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Progreso: ${done.size} de ${LESSONS.length} lecciones completadas`;
+}
+
+function runLessonCode(idx) {
+  const code = document.getElementById('lesson-editor').value;
+  const out = document.getElementById('lesson-output');
+  out.classList.add('visible');
+  out.innerHTML = '<span class="output-success">' + simPython(code) + '</span>';
+}
+
+function runCode() {
+  const code = document.getElementById('code-editor').value;
+  const out = document.getElementById('output-box');
+  out.classList.add('visible');
+  const result = simPython(code);
+  out.innerHTML = `<span class="${result.startsWith('Error') ? 'output-error' : 'output-success'}">${result}</span>`;
+}
+
+function simPython(code) {
+  const lines = [];
+  try {
+    const printRe = /print\((.*)\)/g;
+    let m;
+    const cleaned = code.replace(/#[^\n]*/g, '');
+    const allPrints = [...cleaned.matchAll(/print\(([^)]+)\)/g)];
+    if (allPrints.length === 0 && cleaned.trim()) {
+      if (/for\s+\w+\s+in\s+range\((\d+),?\s*(\d+)?\)/.test(cleaned)) {
+        const rm = cleaned.match(/for\s+(\w+)\s+in\s+range\((\d+),?\s*(\d+)?\)/);
+        const varName = rm[1], start = rm[3] ? +rm[2] : 0, end = rm[3] ? +rm[3] : +rm[2];
+        for (let i = start; i < end; i++) lines.push(String(i));
+        return lines.join('\n') || '(sin salida)';
+      }
+      return '(sin salida visible)';
+    }
+    let output = [];
+    const forMatch = cleaned.match(/for\s+(\w+)\s+in\s+range\((\d+),?\s*(\d+)?\)/);
+    if (forMatch) {
+      const varName = forMatch[1], start = forMatch[3] ? +forMatch[2] : 0, end = forMatch[3] ? +forMatch[3] : +forMatch[2];
+      const printInFor = cleaned.match(/print\(([^)]+)\)/);
+      if (printInFor) {
+        for (let i = start; i < end; i++) {
+          let expr = printInFor[1].replace(/f["']([^"']+)["']/, (_, t) => t.replace(new RegExp(`\\{${varName}\\}`, 'g'), i));
+          if (expr.includes(varName)) expr = expr.replace(new RegExp(varName,'g'), i);
+          expr = expr.replace(/["']/g, '');
+          output.push(expr.trim());
+        }
+        return output.join('\n');
       }
     }
-  }
-}
-
-function stepLiquid(x,y,t,i){
-  if(get(x,y+1)===EMPTY){swap(x,y,x,y+1);updated[idx(x,y+1)]=1;return;}
-  const d=chance(0.5)?1:-1;
-  const sp=t===WATER?5:t===OIL?3:t===ACID?6:2;
-  for(let s=1;s<=sp;s++){
-    if(get(x+d*s,y)===EMPTY){swap(x,y,x+d*s,y);updated[idx(x+d*s,y)]=1;return;}
-    if(!IS_LIQUID(get(x+d*s,y)))break;
-  }
-  for(let s=1;s<=sp;s++){
-    if(get(x-d*s,y)===EMPTY){swap(x,y,x-d*s,y);updated[idx(x-d*s,y)]=1;return;}
-    if(!IS_LIQUID(get(x-d*s,y)))break;
-  }
-  if(inBounds(x+d,y+1)&&get(x+d,y+1)===EMPTY){swap(x,y,x+d,y+1);updated[idx(x+d,y+1)]=1;return;}
-  if(inBounds(x-d,y+1)&&get(x-d,y+1)===EMPTY){swap(x,y,x-d,y+1);updated[idx(x-d,y+1)]=1;return;}
-}
-
-function stepFire(x,y,i){
-  const j=i*3;
-  if(chance(0.35)){color[j]=rnd(200,255);color[j+1]=rnd(40,160);color[j+2]=0;}
-  if(get(x,y-1)===EMPTY&&chance(0.55)){
-    if(chance(0.18))set(x,y-1,SMOKE);
-    swap(x,y,x,y-1);updated[idx(x,y-1)]=1;
-  } else if(chance(0.05)){
-    if(get(x,y-1)===EMPTY)set(x,y-1,SMOKE);
-    grid[i]=EMPTY;
-  }
-  for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1],[x-1,y-1],[x+1,y-1]]){
-    if(!inBounds(nx,ny))continue;
-    const nt=get(nx,ny);
-    if(IS_FLAMMABLE(nt)&&chance(0.02))set(nx,ny,FIRE);
-    if(nt===WATER&&chance(0.25)){set(nx,ny,STEAM);grid[i]=EMPTY;return;}
-    if(nt===ICE&&chance(0.06))set(nx,ny,WATER);
-    if(nt===OIL&&chance(0.04))set(nx,ny,FIRE);
-  }
-}
-
-function stepSmoke(x,y,i){
-  if(chance(0.012)){grid[i]=EMPTY;return;}
-  const j=i*3;
-  if(chance(0.05)){color[j]=rnd(90,130);color[j+1]=rnd(90,130);color[j+2]=rnd(90,130);}
-  const d=rnd(-1,1);
-  if(inBounds(x+d,y-1)&&get(x+d,y-1)===EMPTY){swap(x,y,x+d,y-1);updated[idx(x+d,y-1)]=1;}
-  else if(get(x,y-1)===EMPTY){swap(x,y,x,y-1);updated[idx(x,y-1)]=1;}
-  else if(inBounds(x+d,y)&&get(x+d,y)===EMPTY&&chance(0.35)){swap(x,y,x+d,y);updated[idx(x+d,y)]=1;}
-}
-
-function stepSteam(x,y,i){
-  if(chance(0.007)){grid[i]=EMPTY;return;}
-  if(chance(0.0008))set(x,y,WATER);
-  const d=rnd(-1,1);
-  if(inBounds(x+d,y-1)&&get(x+d,y-1)===EMPTY){swap(x,y,x+d,y-1);updated[idx(x+d,y-1)]=1;}
-  else if(get(x,y-1)===EMPTY){swap(x,y,x,y-1);updated[idx(x,y-1)]=1;}
-  else if(inBounds(x+d,y)&&get(x+d,y)===EMPTY&&chance(0.4)){swap(x,y,x+d,y);updated[idx(x+d,y)]=1;}
-}
-
-function stepLava(x,y,i){
-  const j=i*3;
-  if(chance(0.2)){color[j]=rnd(220,255);color[j+1]=rnd(60,140);color[j+2]=0;}
-  if(get(x,y+1)===EMPTY){swap(x,y,x,y+1);updated[idx(x,y+1)]=1;return;}
-  const d=chance(0.5)?1:-1;
-  if(chance(0.12)){
-    if(inBounds(x+d,y)&&get(x+d,y)===EMPTY){swap(x,y,x+d,y);updated[idx(x+d,y)]=1;return;}
-    if(inBounds(x+d,y+1)&&get(x+d,y+1)===EMPTY){swap(x,y,x+d,y+1);updated[idx(x+d,y+1)]=1;return;}
-  }
-  for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-    if(!inBounds(nx,ny))continue;
-    const nt=get(nx,ny);
-    if(IS_FLAMMABLE(nt)&&chance(0.03))set(nx,ny,FIRE);
-    if(nt===WATER&&chance(0.04)){set(nx,ny,STONE);set(x,y,STONE);return;}
-    if(nt===ICE&&chance(0.08))set(nx,ny,WATER);
-  }
-  if(chance(0.0003))set(x,y,STONE);
-}
-
-function stepIce(x,y,i){
-  for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-    if(!inBounds(nx,ny))continue;
-    const nt=get(nx,ny);
-    if((nt===FIRE||nt===LAVA)&&chance(0.04)){set(x,y,WATER);return;}
-  }
-  if(chance(0.0008)){
-    for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-      if(get(nx,ny)===WATER&&chance(0.25)){set(nx,ny,ICE);return;}
+    for (const pm of allPrints) {
+      let arg = pm[1].trim();
+      arg = arg.replace(/f["']([^"']+)["']/, '$1');
+      arg = arg.replace(/["']/g,'');
+      arg = arg.replace(/\\n/g, '\n');
+      output.push(arg.trim());
     }
+    return output.join('\n') || '(sin salida)';
+  } catch(e) { return 'Error: ' + e.message; }
+}
+
+function loadExercise() {
+  exIdx = (exIdx + 1) % EXERCISES.length;
+  const ex = EXERCISES[exIdx];
+  document.getElementById('editor-lbl').textContent = 'Ejercicio: ' + ex.lbl;
+  document.getElementById('code-editor').value = ex.starter;
+  document.getElementById('output-box').classList.remove('visible');
+  document.getElementById('output-box').innerHTML = '';
+}
+
+function loadQuiz() {
+  quizPool = [...QUIZZES].sort(() => Math.random() - 0.5).slice(0, 3);
+  const c = document.getElementById('quiz-container');
+  c.innerHTML = quizPool.map((q, qi) => `
+    <div class="quiz-card">
+      <div class="quiz-q">${qi + 1}. ${q.q}</div>
+      <div class="quiz-opts">
+        ${q.opts.map((o, oi) => `<button class="quiz-opt" id="qo-${qi}-${oi}" onclick="answerQuiz(${qi}, ${oi})">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qf-${qi}"></div>
+    </div>`).join('');
+}
+
+function answerQuiz(qi, oi) {
+  const q = quizPool[qi];
+  const fb = document.getElementById('qf-' + qi);
+  document.querySelectorAll(`[id^="qo-${qi}-"]`).forEach(b => { b.disabled = true; b.style.cursor = 'default'; });
+  if (oi === q.ans) {
+    document.getElementById(`qo-${qi}-${oi}`).classList.add('correct');
+    fb.className = 'quiz-feedback show ok';
+    fb.textContent = '¡Correcto! +10 puntos';
+    pts += 10; updateStats();
+  } else {
+    document.getElementById(`qo-${qi}-${oi}`).classList.add('wrong');
+    document.getElementById(`qo-${qi}-${q.ans}`).classList.add('correct');
+    fb.className = 'quiz-feedback show fail';
+    fb.textContent = 'Incorrecto. La respuesta correcta está marcada en verde.';
   }
 }
 
-function stepPlant(x,y,i){
-  if(chance(0.0015)){
-    for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-      if(get(nx,ny)===WATER){set(nx,ny,PLANT);return;}
-      if(get(nx,ny)===EMPTY&&chance(0.08)){set(nx,ny,PLANT);return;}
-    }
-  }
-  for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-    if(!inBounds(nx,ny))continue;
-    if((get(nx,ny)===FIRE||get(nx,ny)===LAVA)&&chance(0.04)){set(x,y,FIRE);return;}
-  }
-}
-
-function stepAcid(x,y,i){
-  if(get(x,y+1)===EMPTY){swap(x,y,x,y+1);updated[idx(x,y+1)]=1;return;}
-  const d=chance(0.5)?1:-1;
-  if(inBounds(x+d,y)&&get(x+d,y)===EMPTY){swap(x,y,x+d,y);updated[idx(x+d,y)]=1;return;}
-  if(inBounds(x+d,y+1)&&get(x+d,y+1)===EMPTY){swap(x,y,x+d,y+1);updated[idx(x+d,y+1)]=1;return;}
-  for(const[nx,ny]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){
-    if(!inBounds(nx,ny))continue;
-    const nt=get(nx,ny);
-    if(nt!==EMPTY&&nt!==ACID&&nt!==STONE&&chance(0.025)){
-      set(nx,ny,EMPTY);
-      if(chance(0.35))grid[i]=EMPTY;
-      return;
-    }
-  }
-}
-
-function renderFrame(){
-  for(let y=0;y<ROWS;y++){
-    for(let x=0;x<COLS;x++){
-      const i=idx(x,y);
-      const t=grid[i];
-      let r,g,b;
-      if(t===EMPTY){r=13;g=13;b=13;}
-      else{const j=i*3;r=color[j];g=color[j+1];b=color[j+2];}
-      const px=(y*2)*W*4+x*2*4;
-      pixels[px]=r;pixels[px+1]=g;pixels[px+2]=b;pixels[px+3]=255;
-      pixels[px+4]=r;pixels[px+5]=g;pixels[px+6]=b;pixels[px+7]=255;
-      const px2=px+W*4;
-      if(px2+7<pixels.length){
-        pixels[px2]=r;pixels[px2+1]=g;pixels[px2+2]=b;pixels[px2+3]=255;
-        pixels[px2+4]=r;pixels[px2+5]=g;pixels[px2+6]=b;pixels[px2+7]=255;
-      }
-    }
-  }
-  ctx.putImageData(imageData,0,0);
-}
-
-function drawAt(cx,cy){
-  const gx=Math.floor(cx/2),gy=Math.floor(cy/2),r=brushSize;
-  for(let dy=-r;dy<=r;dy++){
-    for(let dx=-r;dx<=r;dx++){
-      if(dx*dx+dy*dy>r*r)continue;
-      const nx=gx+dx,ny=gy+dy;
-      if(!inBounds(nx,ny))continue;
-      if(currentMat===EMPTY)grid[idx(nx,ny)]=EMPTY;
-      else if(chance(0.7))set(nx,ny,currentMat);
-    }
+async function sendAI() {
+  const input = document.getElementById('ai-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addMsg(msg, 'user');
+  const thinking = addMsg('Pensando...', 'bot thinking');
+  chatHistory.push({ role: 'user', content: msg });
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Eres un tutor experto en Python que enseña a principiantes en español. Explica los conceptos de forma clara, simple y con ejemplos cortos de código cuando sea útil. Responde siempre en español. Mantén tus respuestas concisas (máximo 3 párrafos). Usa emojis ocasionalmente para hacer el aprendizaje más amigable.',
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Lo siento, no pude responder.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    thinking.textContent = reply;
+    thinking.className = 'ai-msg bot';
+  } catch(e) {
+    thinking.textContent = 'Error al conectar con el asistente. Verifica tu conexión.';
+    thinking.className = 'ai-msg bot';
   }
 }
 
-function getPos(e){
-  const rect=canvas.getBoundingClientRect();
-  const src=e.touches?e.touches[0]:e;
-  return{x:src.clientX-rect.left,y:src.clientY-rect.top};
+function addMsg(text, cls) {
+  const chat = document.getElementById('ai-chat');
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + cls;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
 }
 
-canvas.addEventListener('mousedown',e=>{mouseDown=true;const p=getPos(e);drawAt(p.x,p.y);});
-canvas.addEventListener('mouseup',()=>mouseDown=false);
-canvas.addEventListener('mouseleave',()=>mouseDown=false);
-canvas.addEventListener('mousemove',e=>{if(mouseDown){const p=getPos(e);drawAt(p.x,p.y);}});
-canvas.addEventListener('touchstart',e=>{e.preventDefault();mouseDown=true;const p=getPos(e);drawAt(p.x,p.y);},{passive:false});
-canvas.addEventListener('touchend',e=>{e.preventDefault();mouseDown=false;},{passive:false});
-canvas.addEventListener('touchmove',e=>{e.preventDefault();if(mouseDown){const p=getPos(e);drawAt(p.x,p.y);}},{passive:false});
-
-document.addEventListener('keydown',e=>{
-  if(e.code==='Space'){e.preventDefault();togglePause();}
-  if(e.key==='r'||e.key==='R')clearGrid();
-});
-
-function selectMat(name,btn){
-  currentMat=MAT_MAP[name];
-  document.querySelectorAll('.mat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+function askChip(q) {
+  document.getElementById('ai-input').value = q;
+  sendAI();
 }
 
-function togglePause(){
-  paused=!paused;
-  const btn=document.getElementById('pause-btn');
-  btn.classList.toggle('active',paused);
-  btn.textContent=paused?'▶ REANUDAR':'⏸ PAUSA';
-}
-
-let lastPCount=0,pcTimer=0;
-function loop(ts){
-  requestAnimationFrame(loop);
-  frameCount++;
-  if(ts-fpsTimer>=600){
-    currentFps=Math.round(frameCount*1000/(ts-fpsTimer));
-    frameCount=0;fpsTimer=ts;
-    document.getElementById('fps').textContent=currentFps;
-  }
-  if(ts-pcTimer>=800){
-    pcTimer=ts;
-    let c=0;for(let i=0;i<grid.length;i++)if(grid[i]!==EMPTY)c++;
-    document.getElementById('pcount').textContent=c;
-  }
-  if(!paused)step();
-  renderFrame();
-}
-
-window.addEventListener('resize',resize);
-resize();
-requestAnimationFrame(loop);
+loadQuiz();
 </script>
-</body>
-</html>

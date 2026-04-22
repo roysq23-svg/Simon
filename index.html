@@ -1,510 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyLearn — Aprende Python</title>
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);color:var(--color-text-primary);background:transparent}
-.app{padding:1.25rem 0 2rem}
-.header{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:0.5px solid var(--color-border-tertiary)}
-.logo-box{width:44px;height:44px;background:#EAF3DE;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:0.5px solid #C0DD97}
-.app-title{font-size:18px;font-weight:500}
-.app-sub{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
-.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 16px;text-align:center}
-.stat-n{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.stat-l{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.prog-lbl{font-size:13px;color:var(--color-text-secondary)}
-.prog-pct{font-size:13px;font-weight:500;color:#3B6D11}
-.prog-track{background:var(--color-background-secondary);border-radius:20px;height:6px;margin-bottom:1.25rem;border:0.5px solid var(--color-border-tertiary)}
-.prog-fill{height:6px;border-radius:20px;background:#639922;transition:width .4s ease}
-.tabs{display:flex;background:var(--color-background-secondary);border-radius:10px;padding:4px;gap:3px;margin-bottom:1.25rem;border:0.5px solid var(--color-border-tertiary)}
-.tab{flex:1;padding:8px 4px;font-size:13px;font-family:var(--font-sans);color:var(--color-text-secondary);border:none;background:transparent;border-radius:7px;cursor:pointer;transition:all .18s;font-weight:400}
-.tab.on{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
-.tab:hover:not(.on){color:var(--color-text-primary)}
-.pane{display:none}
-.pane.on{display:block}
+  <!-- ============================================================
+       GOOGLE FONTS — importamos dos fuentes bonitas
+       'Space Grotesk' para títulos y 'JetBrains Mono' para código
+  ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-.lesson-list{display:flex;flex-direction:column;gap:8px}
-.l-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .18s}
-.l-card:hover{border-color:var(--color-border-secondary)}
-.l-card.done{border-color:#97C459}
-.l-icon{width:38px;height:38px;border-radius:8px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:0.5px solid var(--color-border-tertiary)}
-.l-card.done .l-icon{background:#EAF3DE;border-color:#C0DD97}
-.l-info{flex:1;min-width:0}
-.l-info h3{font-size:14px;font-weight:500;color:var(--color-text-primary)}
-.l-info p{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;flex-shrink:0}
-.bg{background:#EAF3DE;color:#3B6D11}
-.bm{background:#FAEEDA;color:#854F0B}
-.ba{background:#FAECE7;color:#993C1D}
+  <style>
+    /* ============================================================
+       VARIABLES CSS — paleta de colores central
+       Si quieres cambiar los colores, solo toca aquí
+    ============================================================ */
+    :root {
+      --verde:       #22c55e;   /* color principal verde Python */
+      --verde-dark:  #16a34a;
+      --verde-bg:    #f0fdf4;   /* fondo muy suave verde */
+      --verde-borde: #bbf7d0;
+      --azul:        #3b82f6;
+      --azul-bg:     #eff6ff;
+      --azul-borde:  #bfdbfe;
+      --amarillo:    #f59e0b;
+      --amarillo-bg: #fffbeb;
+      --rojo:        #ef4444;
+      --rojo-bg:     #fef2f2;
+      --gris-100:    #f8fafc;
+      --gris-200:    #e2e8f0;
+      --gris-400:    #94a3b8;
+      --gris-600:    #475569;
+      --gris-800:    #1e293b;
+      --blanco:      #ffffff;
+      --fuente:      'Space Grotesk', sans-serif;
+      --fuente-code: 'JetBrains Mono', monospace;
+    }
 
-.lv{padding-bottom:1rem}
-.back-btn{background:none;border:none;font-size:13px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);padding:0 0 1rem;display:flex;align-items:center;gap:5px}
-.back-btn:hover{color:var(--color-text-primary)}
-.lv-title{font-size:17px;font-weight:500;margin-bottom:.5rem}
-.lv-desc{font-size:14px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:1.25rem}
-.code-lbl{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.code-block{background:#161b22;border:0.5px solid #30363d;border-radius:var(--border-radius-lg);padding:16px;margin-bottom:1.25rem;overflow-x:auto}
-.code-block pre{font-family:var(--font-mono);font-size:13px;line-height:1.75;color:#c9d1d9;white-space:pre}
-.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.nm{color:#79c0ff}.cm{color:#8b949e}
-.editor-area{background:#161b22;border:0.5px solid #30363d;border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:10px}
-.editor-area textarea{width:100%;min-height:110px;background:transparent;color:#c9d1d9;font-family:var(--font-mono);font-size:13px;border:none;padding:14px 16px;line-height:1.75;resize:vertical}
-.editor-area textarea:focus{outline:none}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.btn{padding:8px 18px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;font-family:var(--font-sans);cursor:pointer;border:0.5px solid;transition:all .18s}
-.btn:active{transform:scale(.98)}
-.btn-run{background:#EAF3DE;color:#3B6D11;border-color:#97C459}
-.btn-run:hover{background:#d4ebbb}
-.btn-done{background:#E1F5EE;color:#0F6E56;border-color:#9FE1CB}
-.btn-done:hover{background:#c9ecdf}
-.btn-next{background:#FAEEDA;color:#854F0B;border-color:#FAC775}
-.btn-next:hover{background:#f5e4c0}
-.btn-quiz{background:#E6F1FB;color:#185FA5;border-color:#B5D4F4}
-.btn-quiz:hover{background:#cfe3f5}
-.output{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;font-family:var(--font-mono);font-size:13px;line-height:1.6;display:none;white-space:pre-wrap;margin-top:4px}
-.output.show{display:block}
-.ok{color:#3B6D11}.err{color:#A32D2D}
+    /* ============================================================
+       RESET + BASE
+    ============================================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-.ex-lbl{font-size:14px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary)}
-.ex-hint{font-size:13px;color:var(--color-text-secondary);margin-bottom:14px}
+    body {
+      font-family: var(--fuente);
+      background: var(--gris-100);
+      color: var(--gris-800);
+      min-height: 100vh;
+    }
 
-.quiz-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:10px}
-.quiz-q{font-size:14px;font-weight:500;line-height:1.5;margin-bottom:12px}
-.quiz-opts{display:flex;flex-direction:column;gap:7px}
-.qopt{padding:10px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;font-size:14px;background:var(--color-background-secondary);font-family:var(--font-sans);color:var(--color-text-primary);text-align:left;transition:all .15s}
-.qopt:hover{border-color:var(--color-border-secondary);background:var(--color-background-primary)}
-.qopt.correct{background:#EAF3DE;border-color:#97C459;color:#27500A}
-.qopt.wrong{background:#FCEBEB;border-color:#F09595;color:#791F1F}
-.qfb{font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);margin-top:10px;display:none}
-.qfb.show{display:block}
-.qfb.ok{background:#EAF3DE;color:#3B6D11}
-.qfb.err{background:#FCEBEB;color:#A32D2D}
+    /* ============================================================
+       HEADER — barra superior verde
+    ============================================================ */
+    header {
+      background: var(--verde);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-.ai-wrap{display:flex;flex-direction:column;gap:0}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.chip{font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:var(--font-sans);transition:all .15s}
-.chip:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
-.chat-msgs{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
-.msg{padding:11px 14px;border-radius:12px;font-size:14px;line-height:1.6;max-width:88%}
-.msg.bot{background:#E6F1FB;color:#0C447C;border-radius:4px 12px 12px 12px;align-self:flex-start;border:0.5px solid #B5D4F4}
-.msg.user{background:#EAF3DE;color:#27500A;border-radius:12px 4px 12px 12px;align-self:flex-end;border:0.5px solid #C0DD97}
-.msg.thinking{opacity:.6;font-style:italic}
-.chat-input-row{display:flex;gap:8px}
-.chat-input-row input{flex:1;font-size:14px}
-.send-btn{background:#E6F1FB;color:#185FA5;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);white-space:nowrap}
-.send-btn:hover{background:#cfe3f5}
-</style>
+    header .logo {
+      font-size: 32px;        /* emoji serpiente */
+    }
 
-<div class="app">
-<h2 class="sr-only">PyLearn — plataforma interactiva para aprender Python con lecciones, ejercicios, quiz y asistente IA</h2>
+    header h1 {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--blanco);
+    }
 
-<div class="header">
-  <div class="logo-box">🐍</div>
-  <div>
-    <div class="app-title">PyLearn</div>
-    <div class="app-sub">Aprende Python paso a paso con ejercicios y IA</div>
-  </div>
-</div>
+    header p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 2px;
+    }
 
-<div class="stats">
-  <div class="stat"><div class="stat-n" id="s-done">0</div><div class="stat-l">lecciones</div></div>
-  <div class="stat"><div class="stat-n" id="s-pts">0</div><div class="stat-l">puntos</div></div>
-  <div class="stat"><div class="stat-n" id="s-lvl">Principiante</div><div class="stat-l">nivel</div></div>
-</div>
+    /* ============================================================
+       LAYOUT PRINCIPAL — sidebar izquierda + contenido derecha
+    ============================================================ */
+    .layout {
+      display: flex;
+      max-width: 1100px;
+      margin: 32px auto;
+      gap: 24px;
+      padding: 0 24px;
+    }
 
-<div class="prog-row"><span class="prog-lbl" id="prog-lbl">0 de 6 lecciones completadas</span><span class="prog-pct" id="prog-pct">0%</span></div>
-<div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    /* ============================================================
+       SIDEBAR — tarjetas de progreso y menú de lecciones
+    ============================================================ */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-<div class="tabs">
-  <button class="tab on" onclick="goTab('lecciones',this)">Lecciones</button>
-  <button class="tab" onclick="goTab('ejercicios',this)">Ejercicios</button>
-  <button class="tab" onclick="goTab('quiz',this)">Quiz</button>
-  <button class="tab" onclick="goTab('asistente',this)">Asistente IA</button>
-</div>
+    /* Tarjeta de progreso */
+    .card-progreso {
+      background: var(--blanco);
+      border: 1px solid var(--gris-200);
+      border-radius: 16px;
+      padding: 20px;
+    }
 
-<div id="pane-lecciones" class="pane on">
-  <div class="lesson-list" id="lesson-list">
-    <div class="l-card" id="lc0" onclick="openLesson(0)"><div class="l-icon">📘</div><div class="l-info"><h3>Variables y tipos de datos</h3><p>int, float, str, bool</p></div><span class="badge bg">Básico</span></div>
-    <div class="l-card" id="lc1" onclick="openLesson(1)"><div class="l-icon">🔁</div><div class="l-info"><h3>Bucles for y while</h3><p>Repite código con elegancia</p></div><span class="badge bg">Básico</span></div>
-    <div class="l-card" id="lc2" onclick="openLesson(2)"><div class="l-icon">❓</div><div class="l-info"><h3>Condicionales if / else</h3><p>Toma decisiones en tu código</p></div><span class="badge bg">Básico</span></div>
-    <div class="l-card" id="lc3" onclick="openLesson(3)"><div class="l-icon">⚙️</div><div class="l-info"><h3>Funciones</h3><p>Organiza y reutiliza código</p></div><span class="badge bm">Intermedio</span></div>
-    <div class="l-card" id="lc4" onclick="openLesson(4)"><div class="l-icon">📋</div><div class="l-info"><h3>Listas y diccionarios</h3><p>Colecciones de datos</p></div><span class="badge bm">Intermedio</span></div>
-    <div class="l-card" id="lc5" onclick="openLesson(5)"><div class="l-icon">🏗️</div><div class="l-info"><h3>Clases y objetos</h3><p>Programación orientada a objetos</p></div><span class="badge ba">Avanzado</span></div>
-  </div>
-  <div id="lesson-view" class="lv" style="display:none"></div>
-</div>
+    .card-progreso h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gris-600);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
 
-<div id="pane-ejercicios" class="pane">
-  <div class="ex-lbl" id="ex-lbl">Ejercicio 1: Imprime los números del 1 al 10</div>
-  <div class="ex-hint">Escribe tu solución abajo y presiona Ejecutar para ver el resultado.</div>
-  <div class="editor-area"><textarea id="ex-editor" spellcheck="false">for i in range(1, 11):
-    print(i)</textarea></div>
-  <div class="btn-row">
-    <button class="btn btn-run" onclick="runEx()">▶ Ejecutar</button>
-    <button class="btn btn-next" onclick="nextEx()">Siguiente ejercicio →</button>
-  </div>
-  <div class="output" id="ex-out"></div>
-</div>
+    /* Barra de progreso */
+    .barra-wrap {
+      background: var(--gris-200);
+      border-radius: 99px;
+      height: 8px;
+      margin-bottom: 8px;
+    }
 
-<div id="pane-quiz" class="pane">
-  <div id="quiz-wrap"></div>
-  <button class="btn btn-quiz" onclick="buildQuiz()" style="margin-top:4px">Nuevo quiz aleatorio</button>
-</div>
+    .barra-fill {
+      height: 8px;
+      border-radius: 99px;
+      background: var(--verde);
+      width: 0%;                /* JS lo actualiza */
+      transition: width 0.4s ease;
+    }
 
-<div id="pane-asistente" class="pane">
-  <div class="chips">
-    <button class="chip" onclick="askAI('¿Qué es una lista en Python?')">¿Qué es una lista?</button>
-    <button class="chip" onclick="askAI('¿Cómo funciona range()?')">¿Cómo funciona range()?</button>
-    <button class="chip" onclick="askAI('¿Cuándo usar funciones?')">¿Cuándo usar funciones?</button>
-    <button class="chip" onclick="askAI('Explícame los diccionarios en Python')">Diccionarios</button>
-    <button class="chip" onclick="askAI('¿Qué es la programación orientada a objetos?')">OOP</button>
-  </div>
-  <div class="chat-msgs" id="chat-msgs">
-    <div class="msg bot">¡Hola! Soy tu tutor de Python. Pregúntame sobre cualquier concepto: variables, bucles, funciones, listas... ¡estoy aquí para ayudarte! 🐍</div>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" id="ai-inp" placeholder="Escribe tu pregunta sobre Python..." onkeydown="if(event.key==='Enter')sendAI()">
-    <button class="send-btn" onclick="sendAI()">Enviar ↗</button>
-  </div>
-</div>
-</div>
+    .barra-label {
+      font-size: 13px;
+      color: var(--gris-400);
+    }
 
-<script>
-const LESSONS = [
-  {
-    title: "Variables y tipos de datos",
-    desc: "En Python, las variables guardan información. No necesitas declarar el tipo — Python lo detecta solo. Los cuatro tipos básicos son: int (enteros), float (decimales), str (texto) y bool (verdadero/falso).",
-    code: [
-      {t:"cm", v:"# Cuatro tipos básicos"},
-      {t:"nl"},
-      {t:"id", v:"nombre"},{t:"tx", v:" = "},{t:"st", v:'"Ana"'},{t:"tx", v:"          "},{t:"cm", v:"# str"},
-      {t:"nl"},
-      {t:"id", v:"edad"},{t:"tx", v:" = "},{t:"nm", v:"25"},{t:"tx", v:"               "},{t:"cm", v:"# int"},
-      {t:"nl"},
-      {t:"id", v:"altura"},{t:"tx", v:" = "},{t:"nm", v:"1.65"},{t:"tx", v:"          "},{t:"cm", v:"# float"},
-      {t:"nl"},
-      {t:"id", v:"activo"},{t:"tx", v:" = "},{t:"kw", v:"True"},{t:"tx", v:"          "},{t:"cm", v:"# bool"},
-      {t:"nl"},{t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"("},{t:"st", v:'f"Hola, {nombre}, tienes {edad} años"'},{t:"tx", v:")"},
-      {t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"("},{t:"fn", v:"type"},{t:"tx", v:"(altura))       "},{t:"cm", v:"# <class 'float'>"},
-    ],
-    starter: "# Crea variables con tu nombre, edad y ciudad\nnombre = \"Tu nombre\"\nedad = 20\nciudad = \"Lima\"\n\nprint(f\"Hola, soy {nombre}, tengo {edad} años y vivo en {ciudad}\")"
-  },
-  {
-    title: "Bucles for y while",
-    desc: "Los bucles repiten instrucciones. El bucle for recorre una secuencia con range() u otras colecciones. El while repite mientras una condición sea verdadera.",
-    code: [
-      {t:"cm", v:"# Bucle for con range"},
-      {t:"nl"},
-      {t:"kw", v:"for"},{t:"tx", v:" i "},{t:"kw", v:"in"},{t:"tx", v:" "},{t:"fn", v:"range"},{t:"tx", v:"("},{t:"nm", v:"1"},{t:"tx", v:", "},{t:"nm", v:"6"},{t:"tx", v:"):"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"fn", v:"print"},{t:"tx", v:"("},{t:"st", v:'f"Número: {i}"'},{t:"tx", v:")"},
-      {t:"nl"},{t:"nl"},
-      {t:"cm", v:"# Bucle while"},
-      {t:"nl"},
-      {t:"id", v:"cuenta"},{t:"tx", v:" = "},{t:"nm", v:"0"},
-      {t:"nl"},
-      {t:"kw", v:"while"},{t:"tx", v:" cuenta < "},{t:"nm", v:"3"},{t:"tx", v:":"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"fn", v:"print"},{t:"tx", v:"("},{t:"st", v:'"Vuelta:"'},{t:"tx", v:", cuenta)"},
-      {t:"nl"},
-      {t:"tx", v:"    cuenta += "},{t:"nm", v:"1"},
-    ],
-    starter: "# Imprime la tabla de multiplicar del 7\nfor i in range(1, 11):\n    print(f\"7 x {i} = {7 * i}\")"
-  },
-  {
-    title: "Condicionales if / else",
-    desc: "Las condiciones permiten que tu programa tome decisiones. Usa if para la condición principal, elif para condiciones adicionales y else para el caso por defecto.",
-    code: [
-      {t:"id", v:"nota"},{t:"tx", v:" = "},{t:"nm", v:"85"},
-      {t:"nl"},{t:"nl"},
-      {t:"kw", v:"if"},{t:"tx", v:" nota >= "},{t:"nm", v:"90"},{t:"tx", v:":"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"fn", v:"print"},{t:"tx", v:"("},{t:"st", v:'"Sobresaliente"'},{t:"tx", v:")"},
-      {t:"nl"},
-      {t:"kw", v:"elif"},{t:"tx", v:" nota >= "},{t:"nm", v:"70"},{t:"tx", v:":"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"fn", v:"print"},{t:"tx", v:"("},{t:"st", v:'"Aprobado"'},{t:"tx", v:")"},
-      {t:"nl"},
-      {t:"kw", v:"else"},{t:"tx", v:":"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"fn", v:"print"},{t:"tx", v:"("},{t:"st", v:'"Reprobado"'},{t:"tx", v:")"},
-    ],
-    starter: "# Clasifica una temperatura\ntemp = 28\n\nif temp > 30:\n    print(\"Caluroso\")\nelif temp > 20:\n    print(\"Agradable\")\nelse:\n    print(\"Frío\")"
-  },
-  {
-    title: "Funciones",
-    desc: "Las funciones agrupan código que puedes reutilizar. Se definen con def, pueden recibir parámetros y devolver valores con return.",
-    code: [
-      {t:"kw", v:"def"},{t:"tx", v:" "},{t:"fn", v:"saludar"},{t:"tx", v:"(nombre, formal="},{t:"kw", v:"False"},{t:"tx", v:"):"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"kw", v:"if"},{t:"tx", v:" formal:"},
-      {t:"nl"},
-      {t:"tx", v:"        "},{t:"kw", v:"return"},{t:"tx", v:" "},{t:"st", v:'f"Buenos días, {nombre}."'},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"kw", v:"return"},{t:"tx", v:" "},{t:"st", v:'f"¡Hola, {nombre}!"'},
-      {t:"nl"},{t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"("},{t:"fn", v:"saludar"},{t:"tx", v:"("},{t:"st", v:'"María"'},{t:"tx", v:"))"},
-      {t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"("},{t:"fn", v:"saludar"},{t:"tx", v:"("},{t:"st", v:'"Sr. García"'},{t:"tx", v:", formal="},{t:"kw", v:"True"},{t:"tx", v:"))"},
-    ],
-    starter: "# Función que calcula el área de un rectángulo\ndef area_rectangulo(base, altura):\n    return base * altura\n\nresultado = area_rectangulo(5, 3)\nprint(f\"El área es: {resultado}\")"
-  },
-  {
-    title: "Listas y diccionarios",
-    desc: "Las listas guardan colecciones ordenadas. Los diccionarios guardan pares clave-valor. Ambas son estructuras fundamentales en Python.",
-    code: [
-      {t:"cm", v:"# Lista"},
-      {t:"nl"},
-      {t:"id", v:"frutas"},{t:"tx", v:" = ["},{t:"st", v:'"manzana"'},{t:"tx", v:", "},{t:"st", v:'"pera"'},{t:"tx", v:", "},{t:"st", v:'"uva"'},{t:"tx", v:"]"},
-      {t:"nl"},
-      {t:"id", v:"frutas"},{t:"tx", v:"."},{t:"fn", v:"append"},{t:"tx", v:"("},{t:"st", v:'"kiwi"'},{t:"tx", v:")"},
-      {t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"(frutas[0])       "},{t:"cm", v:"# manzana"},
-      {t:"nl"},{t:"nl"},
-      {t:"cm", v:"# Diccionario"},
-      {t:"nl"},
-      {t:"id", v:"persona"},{t:"tx", v:" = {"},{t:"st", v:'"nombre"'},{t:"tx", v:": "},{t:"st", v:'"Luis"'},{t:"tx", v:", "},{t:"st", v:'"edad"'},{t:"tx", v:": "},{t:"nm", v:"30"},{t:"tx", v:"}"},
-      {t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"(persona["},{t:"st", v:'"nombre"'},{t:"tx", v:"])  "},{t:"cm", v:"# Luis"},
-    ],
-    starter: "# Crea una lista de 4 países y recórrela\npaises = [\"Perú\", \"México\", \"España\", \"Chile\"]\nfor p in paises:\n    print(p)"
-  },
-  {
-    title: "Clases y objetos",
-    desc: "La programación orientada a objetos organiza el código en clases. Una clase es un molde y un objeto es una instancia creada a partir de ese molde.",
-    code: [
-      {t:"kw", v:"class"},{t:"tx", v:" "},{t:"fn", v:"Perro"},{t:"tx", v:":"},
-      {t:"nl"},
-      {t:"tx", v:"    "},{t:"kw", v:"def"},{t:"tx", v:" "},{t:"fn", v:"__init__"},{t:"tx", v:"(self, nombre, raza):"},
-      {t:"nl"},
-      {t:"tx", v:"        self.nombre = nombre"},
-      {t:"nl"},
-      {t:"tx", v:"        self.raza = raza"},
-      {t:"nl"},{t:"nl"},
-      {t:"tx", v:"    "},{t:"kw", v:"def"},{t:"tx", v:" "},{t:"fn", v:"ladrar"},{t:"tx", v:"(self):"},
-      {t:"nl"},
-      {t:"tx", v:"        "},{t:"kw", v:"return"},{t:"tx", v:" "},{t:"st", v:'f"{self.nombre} dice: ¡Guau!"'},
-      {t:"nl"},{t:"nl"},
-      {t:"id", v:"mi_perro"},{t:"tx", v:" = "},{t:"fn", v:"Perro"},{t:"tx", v:"("},{t:"st", v:'"Rex"'},{t:"tx", v:", "},{t:"st", v:'"Labrador"'},{t:"tx", v:")"},
-      {t:"nl"},
-      {t:"fn", v:"print"},{t:"tx", v:"(mi_perro."},{t:"fn", v:"ladrar"},{t:"tx", v:"())"},
-    ],
-    starter: "# Clase Animal con nombre y sonido\nclass Animal:\n    def __init__(self, nombre, sonido):\n        self.nombre = nombre\n        self.sonido = sonido\n\n    def hablar(self):\n        return f\"{self.nombre} hace: {self.sonido}\"\n\ngato = Animal(\"Gato\", \"Miau\")\nprint(gato.hablar())"
-  }
-];
+    /* Estadísticas pequeñas */
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
 
-const EXERCISES = [
-  {lbl:"Ejercicio 1: Imprime los números del 1 al 10", starter:"for i in range(1, 11):\n    print(i)"},
-  {lbl:"Ejercicio 2: Suma dos números con una función", starter:"def sumar(a, b):\n    return a + b\n\nprint(sumar(4, 7))"},
-  {lbl:"Ejercicio 3: Filtra los pares de una lista", starter:"nums = [1, 2, 3, 4, 5, 6, 7, 8]\npares = [n for n in nums if n % 2 == 0]\nprint(pares)"},
-  {lbl:"Ejercicio 4: Cuenta vocales en un texto", starter:'texto = "Hola Python"\nvocales = sum(1 for c in texto.lower() if c in "aeiouáéíóú")\nprint("Vocales:", vocales)'},
-  {lbl:"Ejercicio 5: Fibonacci con bucle", starter:"a, b = 0, 1\nfor _ in range(8):\n    print(a, end=\" \")\n    a, b = b, a + b"},
-];
+    .stat {
+      flex: 1;
+      background: var(--gris-100);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
 
-const QUIZZES = [
-  {q:"¿Cuál es el resultado de type(3.14)?", opts:["<class 'int'>","<class 'float'>","<class 'str'>","<class 'number'>"], ans:1},
-  {q:"¿Qué palabra clave define una función en Python?", opts:["function","func","def","define"], ans:2},
-  {q:"¿Cuál es una lista válida en Python?", opts:['{"a":1}','(1,2,3)','[1,2,3]','{1,2,3}'], ans:2},
-  {q:"¿Qué produce range(3)?", opts:["[1,2,3]","[0,1,2,3]","0,1,2","[0,1,2]"], ans:3},
-  {q:"¿Cómo accedes al primer elemento de lista = [10,20,30]?", opts:["lista[1]","lista.first()","lista[0]","lista(-1)"], ans:2},
-  {q:"¿Qué operador calcula potencias en Python?", opts:["^","**","pow","^^"], ans:1},
-  {q:"¿Qué devuelve 7 // 2 en Python?", opts:["3.5","4","3","2"], ans:2},
-  {q:"¿Qué método añade un elemento al final de una lista?", opts:[".add()",".push()",".insert()",".append()"], ans:3},
-  {q:"¿Cómo se escribe un comentario en Python?", opts:["// comentario","/* comentario */","# comentario","-- comentario"], ans:2},
-];
+    .stat-num {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--verde-dark);
+    }
 
-let done = new Set(), pts = 0, exIdx = 0, chatHistory = [];
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--gris-400);
+      margin-top: 2px;
+    }
 
-function renderCode(tokens) {
-  return tokens.map(tok => {
-    if (tok.t === 'nl') return '\n';
-    const map = {cm:'cm',kw:'kw',fn:'fn',st:'st',nm:'nm',id:'',tx:''};
-    const cls = map[tok.t];
-    const v = tok.v.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return cls ? `<span class="${cls}">${v}</span>` : v;
-  }).join('');
-}
+    /* Lista de lecciones en el sidebar */
+    .menu-lecciones {
+      background: var(--blanco);
+      border: 1px solid var(--gris-200);
+      border-radius: 16px;
+      overflow: hidden;
+    }
 
-function goTab(name, el) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on');
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
-  document.getElementById('pane-'+name).classList.add('on');
-  if (name==='quiz') buildQuiz();
-}
+    .menu-lecciones h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gris-600);
+      padding: 16px 20px 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--gris-200);
+    }
 
-function openLesson(idx) {
-  document.getElementById('lesson-list').style.display = 'none';
-  const lv = document.getElementById('lesson-view');
-  lv.style.display = 'block';
-  const l = LESSONS[idx];
-  lv.innerHTML = `
-    <button class="back-btn" onclick="closeLesson()">← Volver a lecciones</button>
-    <div class="lv-title">${l.title}</div>
-    <div class="lv-desc">${l.desc}</div>
-    <div class="code-lbl">Ejemplo de código</div>
-    <div class="code-block"><pre>${renderCode(l.code)}</pre></div>
-    <div class="code-lbl">Tu turno — prueba este ejercicio</div>
-    <div class="editor-area"><textarea id="lv-ed" spellcheck="false">${l.starter}</textarea></div>
-    <div class="btn-row">
-      <button class="btn btn-run" onclick="runLesson(${idx})">▶ Ejecutar</button>
-      <button class="btn btn-done" onclick="markDone(${idx})">✓ Lección completada</button>
-    </div>
-    <div class="output" id="lv-out"></div>`;
-}
+    /* Cada ítem del menú */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid var(--gris-200);
+    }
 
-function closeLesson() {
-  document.getElementById('lesson-list').style.display = '';
-  const lv = document.getElementById('lesson-view');
-  lv.style.display = 'none';
-  lv.innerHTML = '';
-}
+    .menu-item:last-child {
+      border-bottom: none;
+    }
 
-function runLesson(idx) {
-  const code = document.getElementById('lv-ed').value;
-  const out = document.getElementById('lv-out');
-  const res = simPy(code);
-  out.className = 'output show ' + (res.isErr ? 'err' : 'ok');
-  out.textContent = res.text;
-}
+    .menu-item:hover {
+      background: var(--gris-100);
+    }
 
-function markDone(idx) {
-  if (!done.has(idx)) { done.add(idx); pts += 50; }
-  const card = document.getElementById('lc'+idx);
-  card.classList.add('done');
-  card.querySelector('.l-icon').textContent = '✓';
-  updateStats();
-  closeLesson();
-}
+    /* Ítem activo (lección seleccionada) */
+    .menu-item.activo {
+      background: var(--verde-bg);
+      border-left: 3px solid var(--verde);
+    }
 
-function updateStats() {
-  document.getElementById('s-done').textContent = done.size;
-  document.getElementById('s-pts').textContent = pts;
-  const lvls = ['Principiante','Principiante','Aprendiz','Aprendiz','Intermedio','Avanzado','Experto'];
-  document.getElementById('s-lvl').textContent = lvls[done.size] || 'Experto';
-  const pct = Math.round(done.size / LESSONS.length * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-lbl').textContent = done.size + ' de ' + LESSONS.length + ' lecciones completadas';
-  document.getElementById('prog-pct').textContent = pct + '%';
-}
+    /* Ítem completado */
+    .menu-item.completado .menu-icon {
+      background: var(--verde-bg);
+      color: var(--verde-dark);
+    }
 
-function runEx() {
-  const code = document.getElementById('ex-editor').value;
-  const out = document.getElementById('ex-out');
-  const res = simPy(code);
-  out.className = 'output show ' + (res.isErr ? 'err' : 'ok');
-  out.textContent = res.text;
-}
+    .menu-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--gris-100);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
 
-function nextEx() {
-  exIdx = (exIdx + 1) % EXERCISES.length;
-  document.getElementById('ex-lbl').textContent = EXERCISES[exIdx].lbl;
-  document.getElementById('ex-editor').value = EXERCISES[exIdx].starter;
-  const out = document.getElementById('ex-out');
-  out.className = 'output'; out.textContent = '';
-}
+    .menu-texto h3 {
+      font-size: 13px;
+      font-weight: 500;
+    }
 
-function simPy(code) {
-  const lines = [];
-  try {
-    const cleaned = code.replace(/#[^\n]*/g, '');
-    const forM = cleaned.match(/for\s+(\w+)\s+in\s+range\((\d+)(?:,\s*(\d+))?\)/);
-    if (forM) {
-      const v = forM[1], s = forM[3]?+forM[2]:0, e = forM[3]?+forM[3]:+forM[2];
-      const pM = cleaned.match(/print\(([^)]+)\)/);
-      if (pM) {
-        for (let i = s; i < e; i++) {
-          let expr = pM[1];
-          expr = expr.replace(/f["']([^"']*)["']/, (_,t) => t.replace(new RegExp(`\\{${v}(\\s*\\*\\s*(\\d+))?\\}`, 'g'), (m, op, mult) => mult ? i*+mult : i).replace(new RegExp(`\\{7 \\* ${v}\\}`, 'g'), 7*i).replace(new RegExp(`\\{3 \\* ${v}\\}`, 'g'), 3*i));
-          if (expr.includes(v)) expr = expr.replace(new RegExp(v,'g'), i);
-          lines.push(expr.replace(/["']/g,'').trim());
-        }
-        return {text: lines.join('\n'), isErr:false};
+    .menu-texto p {
+      font-size: 11px;
+      color: var(--gris-400);
+      margin-top: 1px;
+    }
+
+    /* ============================================================
+       CONTENIDO PRINCIPAL — donde se muestra la lección
+    ============================================================ */
+    .contenido {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Tarjeta de la lección */
+    .card-leccion {
+      background: var(--blanco);
+      border: 1px solid var(--gris-200);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    /* Encabezado de la lección (franja de color) */
+    .leccion-header {
+      background: var(--verde);
+      padding: 24px 28px;
+    }
+
+    .leccion-header h2 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--blanco);
+    }
+
+    .leccion-header p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    /* Cuerpo de la lección */
+    .leccion-body {
+      padding: 24px 28px;
+    }
+
+    /* Título de sección dentro del cuerpo */
+    .seccion-titulo {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gris-600);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    /* ============================================================
+       BLOQUE DE CÓDIGO — fondo oscuro con sintaxis coloreada
+    ============================================================ */
+    .code-block {
+      background: #0f172a;      /* azul muy oscuro */
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      font-family: var(--fuente-code);
+      font-size: 14px;
+      line-height: 1.8;
+      color: #e2e8f0;           /* texto base claro */
+      white-space: pre;         /* IMPORTANTE: respeta saltos de línea */
+    }
+
+    /* Colores de sintaxis Python */
+    .py-kw   { color: #f472b6; }   /* palabras clave: if, for, def, class */
+    .py-fn   { color: #a78bfa; }   /* funciones: print, range, len */
+    .py-str  { color: #86efac; }   /* cadenas: "hola" */
+    .py-num  { color: #60a5fa; }   /* números: 25, 3.14 */
+    .py-cm   { color: #64748b; font-style: italic; } /* comentarios: # esto */
+    .py-cls  { color: #fbbf24; }   /* clases: Perro, Animal */
+
+    /* ============================================================
+       EDITOR DE CÓDIGO — donde el usuario escribe
+    ============================================================ */
+    .editor-wrap {
+      border: 2px solid var(--gris-200);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .editor-wrap:focus-within {
+      border-color: var(--verde);   /* se pone verde cuando escribes */
+    }
+
+    .editor-topbar {
+      background: var(--gris-100);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--gris-200);
+    }
+
+    /* Puntitos decorativos estilo macOS */
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ef4444; }
+    .dot-y { background: #f59e0b; }
+    .dot-g { background: #22c55e; }
+
+    .editor-topbar span {
+      font-family: var(--fuente-code);
+      font-size: 12px;
+      color: var(--gris-400);
+      margin-left: 8px;
+    }
+
+    textarea#editor-codigo {
+      width: 100%;
+      min-height: 130px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: var(--fuente-code);
+      font-size: 14px;
+      line-height: 1.8;
+      border: none;
+      padding: 16px 20px;
+      resize: vertical;
+      outline: none;
+      tab-size: 4;
+    }
+
+    /* ============================================================
+       BOTONES
+    ============================================================ */
+    .botones {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: var(--fuente);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-verde {
+      background: var(--verde);
+      color: var(--blanco);
+    }
+    .btn-verde:hover { background: var(--verde-dark); }
+
+    .btn-outline {
+      background: var(--blanco);
+      color: var(--verde-dark);
+      border: 1.5px solid var(--verde);
+    }
+    .btn-outline:hover { background: var(--verde-bg); }
+
+    .btn-gris {
+      background: var(--gris-200);
+      color: var(--gris-600);
+    }
+    .btn-gris:hover { background: #cbd5e1; }
+
+    .btn-azul {
+      background: var(--azul);
+      color: var(--blanco);
+    }
+    .btn-azul:hover { background: #2563eb; }
+
+    /* ============================================================
+       CAJA DE SALIDA — resultado al ejecutar código
+    ============================================================ */
+    .output-box {
+      display: none;            /* oculta hasta que se ejecuta */
+      margin-top: 14px;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px 20px;
+      border-left: 4px solid var(--verde);
+    }
+
+    .output-box.visible {
+      display: block;
+    }
+
+    .output-box.error {
+      border-left-color: var(--rojo);
+    }
+
+    .output-label {
+      font-size: 11px;
+      color: var(--gris-400);
+      margin-bottom: 6px;
+      font-family: var(--fuente-code);
+    }
+
+    .output-text {
+      font-family: var(--fuente-code);
+      font-size: 14px;
+      color: #86efac;           /* verde claro */
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+
+    .output-box.error .output-text {
+      color: #fca5a5;           /* rojo claro si hay error */
+    }
+
+    /* ============================================================
+       BADGES — etiquetas de nivel
+    ============================================================ */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .badge-basico       { background: var(--verde-bg);    color: var(--verde-dark); }
+    .badge-intermedio   { background: var(--amarillo-bg); color: #92400e; }
+    .badge-avanzado     { background: var(--rojo-bg);     color: #991b1b; }
+
+    /* ============================================================
+       TABS — Lección / Quiz / Asistente IA
+    ============================================================ */
+    .tabs-header {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--gris-200);
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: var(--gris-400);
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 0;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .tab-btn.activo {
+      color: var(--verde-dark);
+      border-bottom-color: var(--verde);
+    }
+
+    .tab-btn:hover:not(.activo) {
+      color: var(--gris-600);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.activo { display: block; }
+
+    /* ============================================================
+       QUIZ
+    ============================================================ */
+    .quiz-pregunta {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .quiz-opciones {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-opcion {
+      padding: 12px 16px;
+      border: 1.5px solid var(--gris-200);
+      border-radius: 10px;
+      background: var(--blanco);
+      font-family: var(--fuente);
+      font-size: 14px;
+      color: var(--gris-800);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .quiz-opcion:hover:not(:disabled) {
+      border-color: var(--verde);
+      background: var(--verde-bg);
+    }
+
+    .quiz-opcion.correcta {
+      background: var(--verde-bg);
+      border-color: var(--verde);
+      color: var(--verde-dark);
+    }
+
+    .quiz-opcion.incorrecta {
+      background: var(--rojo-bg);
+      border-color: var(--rojo);
+      color: #991b1b;
+    }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .quiz-feedback.ok {
+      display: block;
+      background: var(--verde-bg);
+      color: var(--verde-dark);
+    }
+
+    .quiz-feedback.mal {
+      display: block;
+      background: var(--rojo-bg);
+      color: #991b1b;
+    }
+
+    /* ============================================================
+       CHAT ASISTENTE IA
+    ============================================================ */
+    .chat-msgs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .msg {
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 85%;
+    }
+
+    .msg.bot {
+      background: var(--azul-bg);
+      color: #1e40af;
+      border: 1px solid var(--azul-borde);
+      align-self: flex-start;
+      border-radius: 4px 14px 14px 14px;
+    }
+
+    .msg.user {
+      background: var(--verde-bg);
+      color: var(--verde-dark);
+      border: 1px solid var(--verde-borde);
+      align-self: flex-end;
+      border-radius: 14px 4px 14px 14px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      padding: 11px 16px;
+      border: 1.5px solid var(--gris-200);
+      border-radius: 10px;
+      font-family: var(--fuente);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input-row input:focus {
+      border-color: var(--verde);
+    }
+
+    .chips-rapidos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid var(--verde-borde);
+      background: var(--verde-bg);
+      color: var(--verde-dark);
+      cursor: pointer;
+      font-family: var(--fuente);
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      background: var(--verde);
+      color: var(--blanco);
+    }
+
+    /* ============================================================
+       RESPONSIVE — para pantallas pequeñas
+    ============================================================ */
+    @media (max-width: 768px) {
+      .layout {
+        flex-direction: column;
+        padding: 0 16px;
+      }
+      .sidebar {
+        width: 100%;
       }
     }
-    const prints = [...cleaned.matchAll(/print\(([^)]+)\)/g)];
-    if (!prints.length) return {text:'(sin salida — añade print() para ver resultados)', isErr:false};
-    for (const pm of prints) {
-      let a = pm[1].trim();
-      a = a.replace(/f["']([^"']*)["']/, '$1');
-      a = a.replace(/["']/g,'');
-      lines.push(a.trim());
-    }
-    return {text: lines.join('\n'), isErr:false};
-  } catch(e) { return {text:'Error: '+e.message, isErr:true}; }
-}
+  </style>
+</head>
 
-function buildQuiz() {
-  const pool = [...QUIZZES].sort(()=>Math.random()-.5).slice(0,3);
-  document.getElementById('quiz-wrap').innerHTML = pool.map((q,qi)=>`
-    <div class="quiz-card">
-      <div class="quiz-q">${qi+1}. ${q.q}</div>
-      <div class="quiz-opts">
-        ${q.opts.map((o,oi)=>`<button class="qopt" id="qo${qi}-${oi}" onclick="ansQ(${qi},${oi},${q.ans},this)">${o}</button>`).join('')}
+<body>
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header>
+    <span class="logo">🐍</span>
+    <div>
+      <h1>PyLearn</h1>
+      <p>Aprende Python paso a paso con ejercicios y asistente IA</p>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       LAYOUT: sidebar + contenido
+  ============================================================ -->
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- Tarjeta de progreso -->
+      <div class="card-progreso">
+        <h2>Mi progreso</h2>
+        <div class="barra-wrap">
+          <div class="barra-fill" id="barra-fill"></div>
+        </div>
+        <p class="barra-label" id="barra-label">0 de 6 lecciones</p>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-num" id="stat-done">0</div>
+            <div class="stat-lbl">lecciones</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num" id="stat-pts">0</div>
+            <div class="stat-lbl">puntos</div>
+          </div>
+        </div>
       </div>
-      <div class="qfb" id="qf${qi}"></div>
-    </div>`).join('');
-}
 
-function ansQ(qi, oi, ans, btn) {
-  const card = btn.closest('.quiz-card');
-  card.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
-  const fb = document.getElementById('qf'+qi);
-  if (oi===ans) {
-    btn.classList.add('correct');
-    fb.className='qfb show ok'; fb.textContent='¡Correcto! +10 puntos';
-    pts+=10; updateStats();
-  } else {
-    btn.classList.add('wrong');
-    card.querySelector('#qo'+qi+'-'+ans).classList.add('correct');
-    fb.className='qfb show err'; fb.textContent='Incorrecto. La respuesta correcta está en verde.';
-  }
-}
+      <!-- Menú de lecciones -->
+      <nav class="menu-lecciones">
+        <h2>Lecciones</h2>
+        <div class="menu-item activo" onclick="cargarLeccion(0)">
+          <div class="menu-icon" id="icon-0">📘</div>
+          <div class="menu-texto">
+            <h3>Variables</h3>
+            <p>int, float, str, bool</p>
+          </div>
+        </div>
+        <div class="menu-item" onclick="cargarLeccion(1)">
+          <div class="menu-icon" id="icon-1">🔁</div>
+          <div class="menu-texto">
+            <h3>Bucles</h3>
+            <p>for y while</p>
+          </div>
+        </div>
+        <div class="menu-item" onclick="cargarLeccion(2)">
+          <div class="menu-icon" id="icon-2">❓</div>
+          <div class="menu-texto">
+            <h3>Condicionales</h3>
+            <p>if, elif, else</p>
+          </div>
+        </div>
+        <div class="menu-item" onclick="cargarLeccion(3)">
+          <div class="menu-icon" id="icon-3">⚙️</div>
+          <div class="menu-texto">
+            <h3>Funciones</h3>
+            <p>def y return</p>
+          </div>
+        </div>
+        <div class="menu-item" onclick="cargarLeccion(4)">
+          <div class="menu-icon" id="icon-4">📋</div>
+          <div class="menu-texto">
+            <h3>Listas</h3>
+            <p>y diccionarios</p>
+          </div>
+        </div>
+        <div class="menu-item" onclick="cargarLeccion(5)">
+          <div class="menu-icon" id="icon-5">🏗️</div>
+          <div class="menu-texto">
+            <h3>Clases</h3>
+            <p>y objetos (POO)</p>
+          </div>
+        </div>
+      </nav>
 
-async function sendAI() {
-  const inp = document.getElementById('ai-inp');
-  const txt = inp.value.trim();
-  if (!txt) return;
-  inp.value = '';
-  askAI(txt);
-}
+    </aside>
 
-async function askAI(txt) {
-  addMsg(txt, 'user');
-  chatHistory.push({role:'user',content:txt});
-  const thinking = addMsg('Pensando...', 'bot thinking');
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:800,
-        system:'Eres un tutor experto en Python que enseña a principiantes hispanohablantes. Explica de forma clara, amigable y con ejemplos cortos de código cuando sea útil. Responde SIEMPRE en español. Sé conciso (máximo 3 párrafos cortos). Usa bloques de código con triple backtick cuando muestres código Python.',
-        messages: chatHistory
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || 'No pude responder, intenta de nuevo.';
-    chatHistory.push({role:'assistant',content:reply});
-    thinking.textContent = reply;
-    thinking.className = 'msg bot';
-  } catch(e) {
-    thinking.textContent = 'Error de conexión. Verifica tu red e intenta de nuevo.';
-    thinking.className = 'msg bot';
-  }
-}
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido">
 
-function addMsg(txt, cls) {
-  const wrap = document.getElementById('chat-msgs');
-  const div = document.createElement('div');
-  div.className = 'msg ' + cls;
-  div.textContent = txt;
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
-}
+      <!-- TARJETA DE LECCIÓN -->
+      <div class="card-leccion">
 
-buildQuiz();
-</script>
+        <!-- Encabezado de la lección (cambia dinámicamente) -->
+        <div class="leccion-header" id="leccion-header">
+          <h2 id="leccion-titulo">Variables y tipos de datos</h2>
+          <p id="leccion-desc">En Python las variables guardan información. No necesitas declarar el tipo — Python lo detecta solo.</p>
+        </div>
+
+        <!-- Cuerpo con tabs -->
+        <div class="leccion-body">
+
+          <!-- Tabs: Lección / Quiz / Asistente -->
+          <div class="tabs-header">
+            <button class="tab-btn activo" onclick="cambiarTab('leccion', this)">📖 Lección</button>
+            <button class="tab-btn" onclick="cambiarTab('quiz', this)">🧠 Quiz</button>
+            <button class="tab-btn" onclick="cambiarTab('asistente', this)">🤖 Asistente IA</button>
+          </div>
+
+          <!-- ====== TAB: LECCIÓN ====== -->
+          <div class="tab-panel activo" id="tab-leccion">
+
+            <p class="seccion-titulo">Ejemplo de código</p>
+
+            <!-- Bloque de código con colores (se actualiza con JS) -->
+            <div class="code-block">
+              <pre id="codigo-ejemplo"></pre>
+            </div>
+
+            <p class="seccion-titulo">Tu turno — escribe y prueba</p>
+
+            <!-- Editor de código -->
+            <div class="editor-wrap">
+              <div class="editor-topbar">
+                <div class="dot dot-r"></div>
+                <div class="dot dot-y"></div>
+                <div class="dot dot-g"></div>
+                <span>ejercicio.py</span>
+              </div>
+              <textarea id="editor-codigo" spellcheck="false"></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="botones">
+              <button class="btn-verde" onclick="ejecutarCodigo()">▶ Ejecutar</button>
+              <button class="btn-outline" onclick="marcarCompleta()">✓ Completar lección</button>
+              <button class="btn-gris" onclick="resetearCodigo()">↺ Restablecer</button>
+            </div>
+
+            <!-- Resultado de ejecución -->
+            <div class="output-box" id="output-box">
+              <div class="output-label">Salida:</div>
+              <div class="output-text" id="output-text"></div>
+            </div>
+
+          </div>
+
+          <!-- ====== TAB: QUIZ ====== -->
+          <div class="tab-panel" id="tab-quiz">
+            <div id="quiz-contenido"></div>
+            <div style="margin-top:16px">
+              <button class="btn-azul" onclick="nuevoQuiz()">🎲 Nuevo quiz</button>
+            </div>
+          </div>
+
+          <!-- ====== TAB: ASISTENTE IA ====== -->
+          <div class="tab-panel" id="tab-asistente">
+            <p style="font-size:13px;color:var(--gris-400);margin-bottom:14px">
+              Pregunta cualquier duda sobre Python — el asistente responde en español.
+            </p>
+
+            <!-- Preguntas rápidas -->
+            <div class="chips-rapidos">
+              <button class="chip" onclick="preguntarIA('¿Qué es una variable en Python?')">¿Qué es una variable?</button>
+              <button class="chip" onclick="preguntarIA('¿Cómo funciona range()?')">¿Cómo funciona range()?</button>
+              <button class="chip" onclick="preguntarIA('¿Cuándo usar funciones?')">¿Cuándo usar funciones?</button>
+              <button class="chip" onclick="preguntarIA('Explícame los diccionarios')">Diccionarios</button>
+            </div>
+
+            <!-- Mensajes del chat -->
+            <div class="chat-msgs" id="chat-msgs">
+              <div class="msg bot">
+                ¡Hola! Soy tu tutor de Python 🐍 Pregúntame lo que quieras sobre el lenguaje, con gusto te explico.
+              </div>
+            </div>
+
+            <!-- Campo de texto -->
+            <div class="chat-input-row">
+              <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter') enviarMensaje()" />
+              <button class="btn-verde" onclick="enviarMensaje()">Enviar</button>
+            </div>
+          </div>
+
+        </div><!-- fin leccion-body -->
+      </div><!-- fin card-leccion -->
+
+    </main>
+  </div><!-- fin layout -->
+
+
+  <!-- ============================================================
+       JAVASCRIPT — toda la lógica
+  ============================================================ -->
+  <script>
+
+    /* ----------------------------------------------------------
+       DATOS DE CADA LECCIÓN
+       code: el HTML con spans de color para mostrar
+       starter: código de inicio en el editor del usuario
+    ---------------------------------------------------------- */
+    const LECCIONES = [
+      {
+        titulo: "Variables y tipos de datos",
+        desc: "En Python las variables guardan información. No necesitas declarar el tipo — Python lo detecta solo. Los tipos básicos son: int, float, str y bool.",
+        nivel: "Básico",
+        code: `<span class="py-cm"># Los cuatro tipos básicos de Python</span>
+<span class="py-fn">nombre</span>    = <span class="py-str">"Ana"</span>       <span class="py-cm"># str  → texto</span>
+<span class="py-fn">edad</span>      = <span class="py-num">25</span>         <span class="py-cm"># int  → entero</span>
+<span class="py-fn">altura</span>    = <span class="py-num">1.65</span>       <span class="py-cm"># float → decimal</span>
+<span class="py-fn">activo</span>    = <span class="py-kw">True</span>       <span class="py-cm"># bool → verdadero/falso</span>
+
+<span class="py-cm"># Imprimir con f-string (texto + variable)</span>
+<span class="py-fn">print</span>(<span class="py-str">f"Hola, {nombre}, tienes {edad} años"</span>)
+<span class="py-fn">print</span>(<span class="py-fn">type</span>(altura))   <span class="py-cm"># → &lt;class 'float'&gt;</span>`,
+        starter: `# Crea tus propias variables e imprímelas
+nombre = "Tu nombre"
+edad = 20
+ciudad = "Lima"
+
+print(f"Hola, soy {nombre}")
+print(f"Tengo {edad} años y vivo en {ciudad}")`
+      },
+      {
+        titulo: "Bucles for y while",
+        desc: "Los bucles repiten código. El 'for' recorre una secuencia. El 'while' repite mientras una condición sea True.",
+        nivel: "Básico",
+        code: `<span class="py-cm"># Bucle for — recorre números del 1 al 5</span>
+<span class="py-kw">for</span> i <span class="py-kw">in</span> <span class="py-fn">range</span>(<span class="py-num">1</span>, <span class="py-num">6</span>):
+    <span class="py-fn">print</span>(<span class="py-str">f"Número: {i}"</span>)
+
+<span class="py-cm"># Bucle while — repite mientras se cumpla la condición</span>
+<span class="py-fn">cuenta</span> = <span class="py-num">0</span>
+<span class="py-kw">while</span> cuenta &lt; <span class="py-num">3</span>:
+    <span class="py-fn">print</span>(<span class="py-str">"Vuelta número:"</span>, cuenta)
+    <span class="py-fn">cuenta</span> += <span class="py-num">1</span>  <span class="py-cm"># suma 1 en cada vuelta</span>`,
+        starter: `# Imprime la tabla del 7 (del 7 al 70)
+for i in range(1, 11):
+    print(f"7 x {i} = {7 * i}")`
+      },
+      {
+        titulo: "Condicionales if / else",
+        desc: "Las condiciones hacen que tu programa tome decisiones. Usa if para la condición principal, elif para adicionales y else para el caso por defecto.",
+        nivel: "Básico",
+        code: `<span class="py-fn">nota</span> = <span class="py-num">85</span>
+
+<span class="py-kw">if</span> nota >= <span class="py-num">90</span>:
+    <span class="py-fn">print</span>(<span class="py-str">"Sobresaliente 🏆"</span>)
+<span class="py-kw">elif</span> nota >= <span class="py-num">70</span>:
+    <span class="py-fn">print</span>(<span class="py-str">"Aprobado ✅"</span>)
+<span class="py-kw">elif</span> nota >= <span class="py-num">50</span>:
+    <span class="py-fn">print</span>(<span class="py-str">"Regular 😐"</span>)
+<span class="py-kw">else</span>:
+    <span class="py-fn">print</span>(<span class="py-str">"Reprobado ❌"</span>)`,
+        starter: `# Clasifica la temperatura
+temp = 28
+
+if temp > 35:
+    print("Muy caluroso")
+elif temp > 25:
+    print("Agradable")
+elif temp > 15:
+    print("Fresco")
+else:
+    print("Frío")`
+      },
+      {
+        titulo: "Funciones",
+        desc: "Las funciones agrupan código reutilizable. Se definen con 'def', reciben parámetros y pueden devolver un valor con 'return'.",
+        nivel: "Intermedio",
+        code: `<span class="py-cm"># Definir una función</span>
+<span class="py-kw">def</span> <span class="py-fn">saludar</span>(nombre, formal=<span class="py-kw">False</span>):
+    <span class="py-kw">if</span> formal:
+        <span class="py-kw">return</span> <span class="py-str">f"Buenos días, {nombre}."</span>
+    <span class="py-kw">return</span> <span class="py-str">f"¡Hola, {nombre}!"</span>
+
+<span class="py-cm"># Llamar la función</span>
+<span class="py-fn">print</span>(<span class="py-fn">saludar</span>(<span class="py-str">"María"</span>))
+<span class="py-fn">print</span>(<span class="py-fn">saludar</span>(<span class="py-str">"Sr. García"</span>, formal=<span class="py-kw">True</span>))
+
+<span class="py-cm"># Función que calcula y devuelve un valor</span>
+<span class="py-kw">def</span> <span class="py-fn">cuadrado</span>(n):
+    <span class="py-kw">return</span> n * n
+
+<span class="py-fn">print</span>(<span class="py-fn">cuadrado</span>(<span class="py-num">5</span>))  <span class="py-cm"># → 25</span>`,
+        starter: `# Crea una función que calcule el área de un rectángulo
+def area(base, altura):
+    return base * altura
+
+# Prueba con diferentes valores
+print(area(5, 3))
+print(area(10, 7))`
+      },
+      {
+        titulo: "Listas y diccionarios",
+        desc: "Las listas guardan colecciones ordenadas. Los diccionarios guardan pares clave-valor para buscar información rápidamente.",
+        nivel: "Intermedio",
+        code: `<span class="py-cm"># Lista — colección ordenada</span>
+<span class="py-fn">frutas</span> = [<span class="py-str">"manzana"</span>, <span class="py-str">"pera"</span>, <span class="py-str">"uva"</span>]
+<span class="py-fn">frutas</span>.<span class="py-fn">append</span>(<span class="py-str">"kiwi"</span>)  <span class="py-cm"># agrega al final</span>
+<span class="py-fn">print</span>(frutas[<span class="py-num">0</span>])          <span class="py-cm"># → manzana</span>
+<span class="py-fn">print</span>(<span class="py-fn">len</span>(frutas))         <span class="py-cm"># → 4</span>
+
+<span class="py-cm"># Diccionario — clave: valor</span>
+<span class="py-fn">persona</span> = {
+    <span class="py-str">"nombre"</span>: <span class="py-str">"Luis"</span>,
+    <span class="py-str">"edad"</span>:   <span class="py-num">30</span>,
+    <span class="py-str">"ciudad"</span>: <span class="py-str">"Lima"</span>
+}
+<span class="py-fn">print</span>(persona[<span class="py-str">"nombre"</span>])   <span class="py-cm"># → Luis</span>`,
+        starter: `# Lista de países y recorrerla
+paises = ["Perú", "México", "España", "Argentina"]
+
+for pais in paises:
+    print(pais)
+
+# Diccionario con información
+info = {"capital": "Lima", "idioma": "Español"}
+print(info["capital"])`
+      },
+      {
+        titulo: "Clases y objetos",
+        desc: "La programación orientada a objetos organiza el código en 'clases'. Una clase es un molde; los objetos son instancias creadas a partir de ese molde.",
+        nivel: "Avanzado",
+        code: `<span class="py-kw">class</span> <span class="py-cls">Perro</span>:
+    <span class="py-cm"># __init__ se ejecuta al crear el objeto</span>
+    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-kw">self</span>, nombre, raza):
+        <span class="py-kw">self</span>.nombre = nombre
+        <span class="py-kw">self</span>.raza   = raza
+
+    <span class="py-cm"># Método (función dentro de la clase)</span>
+    <span class="py-kw">def</span> <span class="py-fn">ladrar</span>(<span class="py-kw">self</span>):
+        <span class="py-kw">return</span> <span class="py-str">f"{self.nombre} dice: ¡Guau!"</span>
+
+<span class="py-cm"># Crear un objeto (instancia)</span>
+<span class="py-fn">mi_perro</span> = <span class="py-cls">Perro</span>(<span class="py-str">"Rex"</span>, <span class="py-str">"Labrador"</span>)
+<span class="py-fn">print</span>(mi_perro.<span class="py-fn">ladrar</span>())
+<span class="py-fn">print</span>(mi_perro.nombre)  <span class="py-cm"># → Rex</span>`,
+        starter: `# Crea una clase Animal
+class Animal:
+    def __init__(self, nombre, sonido):
+        self.nombre = nombre
+        self.sonido = sonido
+
+    def hablar(self):
+        return f"{self.nombre} hace: {self.sonido}"
+
+gato = Animal("Gato", "Miau")
+perro = Animal("Perro", "Guau")
+
+print(gato.hablar())
+print(perro.hablar())`
+      }
+    ];
+
+    /* ----------------------------------------------------------
+       PREGUNTAS DE QUIZ por lección
+    ---------------------------------------------------------- */
+    const QUIZZES = [
+      [
+        { p: "¿Cuál es el tipo de: nombre = 'Ana'?", opts: ["int", "float", "str", "bool"], resp: 2 },
+        { p: "¿Qué imprime print(type(3.14))?", opts: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "error"], resp: 1 },
+        { p: "¿Cuál variable guarda True o False?", opts: ["int", "str", "float", "bool"], resp: 3 },
+      ],
+      [
+        { p: "¿Qué produce range(1, 4)?", opts: ["1,2,3,4", "1,2,3", "0,1,2,3", "0,1,2"], resp: 1 },
+        { p: "¿Cuándo para un bucle while?", opts: ["Nunca", "Cuando la condición es False", "Después de 10 vueltas", "Cuando hay un error"], resp: 1 },
+        { p: "¿Qué hace 'cuenta += 1'?", opts: ["Resta 1", "Multiplica por 1", "Suma 1 a cuenta", "Divide entre 1"], resp: 2 },
+      ],
+      [
+        { p: "¿Qué palabra va si la primera condición falla?", opts: ["else if", "elif", "elseif", "or"], resp: 1 },
+        { p: "¿Cuándo se ejecuta el bloque 'else'?", opts: ["Siempre", "Si el if es True", "Si ninguna condición fue True", "Nunca"], resp: 2 },
+        { p: "¿Qué operador compara igualdad?", opts: ["=", "!=", "==", "=>"], resp: 2 },
+      ],
+      [
+        { p: "¿Qué palabra define una función?", opts: ["function", "func", "def", "define"], resp: 2 },
+        { p: "¿Qué hace 'return'?", opts: ["Termina el programa", "Devuelve un valor", "Imprime algo", "Crea una variable"], resp: 1 },
+        { p: "¿Qué es un parámetro con valor por defecto?", opts: ["Un error", "Un parámetro que ya tiene un valor si no lo pasas", "Un valor obligatorio", "Una constante"], resp: 1 },
+      ],
+      [
+        { p: "¿Cómo accedes al primer elemento de lista = [10, 20, 30]?", opts: ["lista[1]", "lista.first()", "lista[0]", "lista(-1)"], resp: 2 },
+        { p: "¿Qué método añade un elemento al final de una lista?", opts: [".add()", ".push()", ".append()", ".insert()"], resp: 2 },
+        { p: "¿Cómo accedes al valor de un diccionario con clave 'edad'?", opts: ["dic.edad", "dic['edad']", "dic(edad)", "dic->edad"], resp: 1 },
+      ],
+      [
+        { p: "¿Qué método se llama automáticamente al crear un objeto?", opts: ["__start__", "__create__", "__init__", "__new__"], resp: 2 },
+        { p: "¿Qué es 'self' en un método?", opts: ["El módulo actual", "Una variable global", "La referencia al objeto mismo", "Un tipo de dato"], resp: 2 },
+        { p: "¿Cómo se crea un objeto de la clase Perro?", opts: ["Perro.new()", "new Perro()", "Perro()", "create Perro()"], resp: 2 },
+      ],
+    ];
+
+    /* ----------------------------------------------------------
+       ESTADO GLOBAL
+    ---------------------------------------------------------- */
+    let leccionActual = 0;
+    let completadas = new Set();
+    let puntos = 0;
+    let historialChat = [];
+
+    /* ----------------------------------------------------------
+       CARGAR LECCIÓN
+    ---------------------------------------------------------- */
+    function cargarLeccion(idx) {
+      leccionActual = idx;
+      const l = LECCIONES[idx];
+
+      // Actualizar header
+      document.getElementById("leccion-titulo").textContent = l.titulo;
+      document.getElementById("leccion-desc").textContent = l.desc;
+
+      // Mostrar el código con colores
+      document.getElementById("codigo-ejemplo").innerHTML = l.code;
+
+      // Poner el código de inicio en el editor
+      document.getElementById("editor-codigo").value = l.starter;
+
+      // Limpiar la salida anterior
+      const out = document.getElementById("output-box");
+      out.classList.remove("visible", "error");
+
+      // Actualizar menú activo
+      document.querySelectorAll(".menu-item").forEach((item, i) => {
+        item.classList.toggle("activo", i === idx);
+      });
+
+      // Cargar quiz de esta lección
+      construirQuiz();
+
+      // Volver al tab de lección
+      document.querySelector(".tab-btn.activo")?.classList.remove("activo");
+      document.querySelector(".tab-btn").classList.add("activo");
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("activo"));
+      document.getElementById("tab-leccion").classList.add("activo");
+    }
+
+    /* ----------------------------------------------------------
+       EJECUTAR CÓDIGO (simulador básico de Python)
+       Nota: es una simulación simple — solo detecta print()
+    ---------------------------------------------------------- */
+    function ejecutarCodigo() {
+      const codigo = document.getElementById("editor-codigo").value;
+      const out = document.getElementById("output-box");
+      const outText = document.getElementById("output-text");
+
+      const resultado = simularPython(codigo);
+
+      out.classList.add("visible");
+      out.classList.toggle("error", resultado.esError);
+      outText.textContent = resultado.texto;
+    }
+
+    function simularPython(codigo) {
+      try {
+        const limpio = codigo.replace(/#[^\n]*/g, "");  // quita comentarios
+        const lineas = [];
+
+        // Detectar bucle for con range
+        const forMatch = limpio.match(/for\s+(\w+)\s+in\s+range\((\d+)(?:,\s*(\d+))?\)/);
+        if (forMatch) {
+          const variable = forMatch[1];
+          const inicio = forMatch[3] ? +forMatch[2] : 0;
+          const fin    = forMatch[3] ? +forMatch[3] : +forMatch[2];
+          const printM = limpio.match(/print\(([^)]+)\)/);
+          if (printM) {
+            for (let i = inicio; i < fin; i++) {
+              let expr = printM[1]
+                .replace(/f["']([^"']*)["']/, (_, t) =>
+                  t.replace(new RegExp(`\\{${variable}\\s*\\*\\s*(\\d+)\\}`, "g"), (m, mult) => i * +mult)
+                   .replace(new RegExp(`\\{7\\s*\\*\\s*${variable}\\}`, "g"), 7 * i)
+                   .replace(new RegExp(`\\{3\\s*\\*\\s*${variable}\\}`, "g"), 3 * i)
+                   .replace(new RegExp(`\\{${variable}\\}`, "g"), i)
+                );
+              expr = expr.replace(/["']/g, "").trim();
+              lineas.push(expr);
+            }
+            return { texto: lineas.join("\n"), esError: false };
+          }
+        }
+
+        // Detectar prints simples
+        const prints = [...limpio.matchAll(/print\(([^)]+)\)/g)];
+        if (!prints.length) {
+          return { texto: "(sin salida — usa print() para mostrar algo)", esError: false };
+        }
+
+        for (const pm of prints) {
+          let arg = pm[1].trim();
+          arg = arg.replace(/f["']([^"']*)["']/, "$1");
+          arg = arg.replace(/["']/g, "");
+          lineas.push(arg.trim());
+        }
+
+        return { texto: lineas.join("\n"), esError: false };
+      } catch (e) {
+        return { texto: "Error: " + e.message, esError: true };
+      }
+    }
+
+    function resetearCodigo() {
+      document.getElementById("editor-codigo").value = LECCIONES[leccionActual].starter;
+      const out = document.getElementById("output-box");
+      out.classList.remove("visible", "error");
+    }
+
+    function marcarCompleta() {
+      if (!completadas.has(leccionActual)) {
+        completadas.add(leccionActual);
+        puntos += 50;
+      }
+      // Marcar en el menú
+      const icon = document.getElementById("icon-" + leccionActual);
+      icon.textContent = "✅";
+      document.querySelectorAll(".menu-item")[leccionActual].classList.add("completado");
+      actualizarEstadisticas();
+    }
+
+    function actualizarEstadisticas() {
+      const total = LECCIONES.length;
+      const hechas = completadas.size;
+      const pct = Math.round(hechas / total * 100);
+
+      document.getElementById("barra-fill").style.width = pct + "%";
+      document.getElementById("barra-label").textContent = hechas + " de " + total + " lecciones";
+      document.getElementById("stat-done").textContent = hechas;
+      document.getElementById("stat-pts").textContent = puntos;
+    }
+
+    /* ----------------------------------------------------------
+       TABS
+    ---------------------------------------------------------- */
+    function cambiarTab(nombre, btn) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
+      btn.classList.add("activo");
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("activo"));
+      document.getElementById("tab-" + nombre).classList.add("activo");
+      if (nombre === "quiz") construirQuiz();
+    }
+
+    /* ----------------------------------------------------------
+       QUIZ
+    ---------------------------------------------------------- */
+    function construirQuiz() {
+      const preguntas = QUIZZES[leccionActual];
+      const html = preguntas.map((q, qi) => `
+        <div style="margin-bottom:24px">
+          <p class="quiz-pregunta">${qi + 1}. ${q.p}</p>
+          <div class="quiz-opciones">
+            ${q.opts.map((o, oi) => `
+              <button class="quiz-opcion" id="qo-${qi}-${oi}" onclick="responderQuiz(${qi}, ${oi}, ${q.resp})">
+                ${o}
+              </button>`).join("")}
+          </div>
+          <div class="quiz-feedback" id="qf-${qi}"></div>
+        </div>`).join("");
+
+      document.getElementById("quiz-contenido").innerHTML = html;
+    }
+
+    function responderQuiz(qi, oi, resp) {
+      const card = document.getElementById(`qo-${qi}-0`).closest("div");
+      card.querySelectorAll(".quiz-opcion").forEach(b => b.disabled = true);
+
+      const fb = document.getElementById("qf-" + qi);
+      if (oi === resp) {
+        document.getElementById(`qo-${qi}-${oi}`).classList.add("correcta");
+        fb.className = "quiz-feedback ok";
+        fb.textContent = "✅ ¡Correcto! +10 puntos";
+        puntos += 10;
+        actualizarEstadisticas();
+      } else {
+        document.getElementById(`qo-${qi}-${oi}`).classList.add("incorrecta");
+        document.getElementById(`qo-${qi}-${resp}`).classList.add("correcta");
+        fb.className = "quiz-feedback mal";
+        fb.textContent = "❌ Incorrecto. La respuesta correcta está en verde.";
+      }
+    }
+
+    function nuevoQuiz() {
+      construirQuiz();
+    }
+
+    /* ----------------------------------------------------------
+       ASISTENTE IA — llama a la API de Claude
+    ---------------------------------------------------------- */
+    async function enviarMensaje() {
+      const input = document.getElementById("chat-input");
+      const texto = input.value.trim();
+      if (!texto) return;
+      input.value = "";
+      preguntarIA(texto);
+    }
+
+    async function preguntarIA(texto) {
+      agregarMensaje(texto, "user");
+      historialChat.push({ role: "user", content: texto });
+
+      const thinking = agregarMensaje("Escribiendo...", "bot");
+      thinking.style.opacity = "0.6";
+      thinking.style.fontStyle = "italic";
+
+      try {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 800,
+            system: "Eres un tutor amigable de Python para hispanohablantes principiantes. Explica siempre en español de forma clara y con ejemplos cortos. Máximo 3 párrafos.",
+            messages: historialChat
+          })
+        });
+
+        const data = await res.json();
+        const respuesta = data.content?.[0]?.text || "No pude responder, intenta de nuevo.";
+        historialChat.push({ role: "assistant", content: respuesta });
+        thinking.textContent = respuesta;
+        thinking.style.opacity = "";
+        thinking.style.fontStyle = "";
+      } catch (e) {
+        thinking.textContent = "Error de conexión. Verifica tu red.";
+        thinking.style.opacity = "";
+      }
+    }
+
+    function agregarMensaje(texto, tipo) {
+      const wrap = document.getElementById("chat-msgs");
+      const div = document.createElement("div");
+      div.className = "msg " + tipo;
+      div.textContent = texto;
+      wrap.appendChild(div);
+      wrap.scrollTop = wrap.scrollHeight;
+      return div;
+    }
+
+    /* ----------------------------------------------------------
+       INICIALIZAR — cargar la primera lección al abrir
+    ---------------------------------------------------------- */
+    cargarLeccion(0);
+
+  </script>
+
+</body>
+</html>

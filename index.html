@@ -1,1318 +1,420 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PyLearn — Aprende Python</title>
 
-  <!-- ============================================================
-       GOOGLE FONTS — importamos dos fuentes bonitas
-       'Space Grotesk' para títulos y 'JetBrains Mono' para código
-  ============================================================ -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
-  <style>
-    /* ============================================================
-       VARIABLES CSS — paleta de colores central
-       Si quieres cambiar los colores, solo toca aquí
-    ============================================================ */
-    :root {
-      --verde:       #22c55e;   /* color principal verde Python */
-      --verde-dark:  #16a34a;
-      --verde-bg:    #f0fdf4;   /* fondo muy suave verde */
-      --verde-borde: #bbf7d0;
-      --azul:        #3b82f6;
-      --azul-bg:     #eff6ff;
-      --azul-borde:  #bfdbfe;
-      --amarillo:    #f59e0b;
-      --amarillo-bg: #fffbeb;
-      --rojo:        #ef4444;
-      --rojo-bg:     #fef2f2;
-      --gris-100:    #f8fafc;
-      --gris-200:    #e2e8f0;
-      --gris-400:    #94a3b8;
-      --gris-600:    #475569;
-      --gris-800:    #1e293b;
-      --blanco:      #ffffff;
-      --fuente:      'Space Grotesk', sans-serif;
-      --fuente-code: 'JetBrains Mono', monospace;
-    }
-
-    /* ============================================================
-       RESET + BASE
-    ============================================================ */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: var(--fuente);
-      background: var(--gris-100);
-      color: var(--gris-800);
-      min-height: 100vh;
-    }
-
-    /* ============================================================
-       HEADER — barra superior verde
-    ============================================================ */
-    header {
-      background: var(--verde);
-      padding: 20px 32px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    header .logo {
-      font-size: 32px;        /* emoji serpiente */
-    }
-
-    header h1 {
-      font-size: 26px;
-      font-weight: 600;
-      color: var(--blanco);
-    }
-
-    header p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.8);
-      margin-top: 2px;
-    }
-
-    /* ============================================================
-       LAYOUT PRINCIPAL — sidebar izquierda + contenido derecha
-    ============================================================ */
-    .layout {
-      display: flex;
-      max-width: 1100px;
-      margin: 32px auto;
-      gap: 24px;
-      padding: 0 24px;
-    }
-
-    /* ============================================================
-       SIDEBAR — tarjetas de progreso y menú de lecciones
-    ============================================================ */
-    .sidebar {
-      width: 280px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* Tarjeta de progreso */
-    .card-progreso {
-      background: var(--blanco);
-      border: 1px solid var(--gris-200);
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .card-progreso h2 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--gris-600);
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    /* Barra de progreso */
-    .barra-wrap {
-      background: var(--gris-200);
-      border-radius: 99px;
-      height: 8px;
-      margin-bottom: 8px;
-    }
-
-    .barra-fill {
-      height: 8px;
-      border-radius: 99px;
-      background: var(--verde);
-      width: 0%;                /* JS lo actualiza */
-      transition: width 0.4s ease;
-    }
-
-    .barra-label {
-      font-size: 13px;
-      color: var(--gris-400);
-    }
-
-    /* Estadísticas pequeñas */
-    .stats {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .stat {
-      flex: 1;
-      background: var(--gris-100);
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .stat-num {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--verde-dark);
-    }
-
-    .stat-lbl {
-      font-size: 11px;
-      color: var(--gris-400);
-      margin-top: 2px;
-    }
-
-    /* Lista de lecciones en el sidebar */
-    .menu-lecciones {
-      background: var(--blanco);
-      border: 1px solid var(--gris-200);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .menu-lecciones h2 {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--gris-600);
-      padding: 16px 20px 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      border-bottom: 1px solid var(--gris-200);
-    }
-
-    /* Cada ítem del menú */
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 20px;
-      cursor: pointer;
-      transition: background 0.15s;
-      border-bottom: 1px solid var(--gris-200);
-    }
-
-    .menu-item:last-child {
-      border-bottom: none;
-    }
-
-    .menu-item:hover {
-      background: var(--gris-100);
-    }
-
-    /* Ítem activo (lección seleccionada) */
-    .menu-item.activo {
-      background: var(--verde-bg);
-      border-left: 3px solid var(--verde);
-    }
-
-    /* Ítem completado */
-    .menu-item.completado .menu-icon {
-      background: var(--verde-bg);
-      color: var(--verde-dark);
-    }
-
-    .menu-icon {
-      width: 32px;
-      height: 32px;
-      background: var(--gris-100);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      flex-shrink: 0;
-    }
-
-    .menu-texto h3 {
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .menu-texto p {
-      font-size: 11px;
-      color: var(--gris-400);
-      margin-top: 1px;
-    }
-
-    /* ============================================================
-       CONTENIDO PRINCIPAL — donde se muestra la lección
-    ============================================================ */
-    .contenido {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    /* Tarjeta de la lección */
-    .card-leccion {
-      background: var(--blanco);
-      border: 1px solid var(--gris-200);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    /* Encabezado de la lección (franja de color) */
-    .leccion-header {
-      background: var(--verde);
-      padding: 24px 28px;
-    }
-
-    .leccion-header h2 {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--blanco);
-    }
-
-    .leccion-header p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.85);
-      margin-top: 6px;
-      line-height: 1.6;
-    }
-
-    /* Cuerpo de la lección */
-    .leccion-body {
-      padding: 24px 28px;
-    }
-
-    /* Título de sección dentro del cuerpo */
-    .seccion-titulo {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--gris-600);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 10px;
-    }
-
-    /* ============================================================
-       BLOQUE DE CÓDIGO — fondo oscuro con sintaxis coloreada
-    ============================================================ */
-    .code-block {
-      background: #0f172a;      /* azul muy oscuro */
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-    }
-
-    .code-block pre {
-      font-family: var(--fuente-code);
-      font-size: 14px;
-      line-height: 1.8;
-      color: #e2e8f0;           /* texto base claro */
-      white-space: pre;         /* IMPORTANTE: respeta saltos de línea */
-    }
-
-    /* Colores de sintaxis Python */
-    .py-kw   { color: #f472b6; }   /* palabras clave: if, for, def, class */
-    .py-fn   { color: #a78bfa; }   /* funciones: print, range, len */
-    .py-str  { color: #86efac; }   /* cadenas: "hola" */
-    .py-num  { color: #60a5fa; }   /* números: 25, 3.14 */
-    .py-cm   { color: #64748b; font-style: italic; } /* comentarios: # esto */
-    .py-cls  { color: #fbbf24; }   /* clases: Perro, Animal */
-
-    /* ============================================================
-       EDITOR DE CÓDIGO — donde el usuario escribe
-    ============================================================ */
-    .editor-wrap {
-      border: 2px solid var(--gris-200);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 14px;
-      transition: border-color 0.2s;
-    }
-
-    .editor-wrap:focus-within {
-      border-color: var(--verde);   /* se pone verde cuando escribes */
-    }
-
-    .editor-topbar {
-      background: var(--gris-100);
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      border-bottom: 1px solid var(--gris-200);
-    }
-
-    /* Puntitos decorativos estilo macOS */
-    .dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dot-r { background: #ef4444; }
-    .dot-y { background: #f59e0b; }
-    .dot-g { background: #22c55e; }
-
-    .editor-topbar span {
-      font-family: var(--fuente-code);
-      font-size: 12px;
-      color: var(--gris-400);
-      margin-left: 8px;
-    }
-
-    textarea#editor-codigo {
-      width: 100%;
-      min-height: 130px;
-      background: #0f172a;
-      color: #e2e8f0;
-      font-family: var(--fuente-code);
-      font-size: 14px;
-      line-height: 1.8;
-      border: none;
-      padding: 16px 20px;
-      resize: vertical;
-      outline: none;
-      tab-size: 4;
-    }
-
-    /* ============================================================
-       BOTONES
-    ============================================================ */
-    .botones {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      font-family: var(--fuente);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.18s;
-    }
-
-    button:active {
-      transform: scale(0.97);
-    }
-
-    .btn-verde {
-      background: var(--verde);
-      color: var(--blanco);
-    }
-    .btn-verde:hover { background: var(--verde-dark); }
-
-    .btn-outline {
-      background: var(--blanco);
-      color: var(--verde-dark);
-      border: 1.5px solid var(--verde);
-    }
-    .btn-outline:hover { background: var(--verde-bg); }
-
-    .btn-gris {
-      background: var(--gris-200);
-      color: var(--gris-600);
-    }
-    .btn-gris:hover { background: #cbd5e1; }
-
-    .btn-azul {
-      background: var(--azul);
-      color: var(--blanco);
-    }
-    .btn-azul:hover { background: #2563eb; }
-
-    /* ============================================================
-       CAJA DE SALIDA — resultado al ejecutar código
-    ============================================================ */
-    .output-box {
-      display: none;            /* oculta hasta que se ejecuta */
-      margin-top: 14px;
-      background: #0f172a;
-      border-radius: 12px;
-      padding: 16px 20px;
-      border-left: 4px solid var(--verde);
-    }
-
-    .output-box.visible {
-      display: block;
-    }
-
-    .output-box.error {
-      border-left-color: var(--rojo);
-    }
-
-    .output-label {
-      font-size: 11px;
-      color: var(--gris-400);
-      margin-bottom: 6px;
-      font-family: var(--fuente-code);
-    }
-
-    .output-text {
-      font-family: var(--fuente-code);
-      font-size: 14px;
-      color: #86efac;           /* verde claro */
-      white-space: pre-wrap;
-      line-height: 1.7;
-    }
-
-    .output-box.error .output-text {
-      color: #fca5a5;           /* rojo claro si hay error */
-    }
-
-    /* ============================================================
-       BADGES — etiquetas de nivel
-    ============================================================ */
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 99px;
-    }
-
-    .badge-basico       { background: var(--verde-bg);    color: var(--verde-dark); }
-    .badge-intermedio   { background: var(--amarillo-bg); color: #92400e; }
-    .badge-avanzado     { background: var(--rojo-bg);     color: #991b1b; }
-
-    /* ============================================================
-       TABS — Lección / Quiz / Asistente IA
-    ============================================================ */
-    .tabs-header {
-      display: flex;
-      gap: 4px;
-      border-bottom: 2px solid var(--gris-200);
-      margin-bottom: 20px;
-    }
-
-    .tab-btn {
-      padding: 10px 20px;
-      border: none;
-      background: transparent;
-      color: var(--gris-400);
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 0;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-    }
-
-    .tab-btn.activo {
-      color: var(--verde-dark);
-      border-bottom-color: var(--verde);
-    }
-
-    .tab-btn:hover:not(.activo) {
-      color: var(--gris-600);
-    }
-
-    .tab-panel { display: none; }
-    .tab-panel.activo { display: block; }
-
-    /* ============================================================
-       QUIZ
-    ============================================================ */
-    .quiz-pregunta {
-      font-size: 15px;
-      font-weight: 500;
-      margin-bottom: 14px;
-      line-height: 1.5;
-    }
-
-    .quiz-opciones {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .quiz-opcion {
-      padding: 12px 16px;
-      border: 1.5px solid var(--gris-200);
-      border-radius: 10px;
-      background: var(--blanco);
-      font-family: var(--fuente);
-      font-size: 14px;
-      color: var(--gris-800);
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.15s;
-    }
-
-    .quiz-opcion:hover:not(:disabled) {
-      border-color: var(--verde);
-      background: var(--verde-bg);
-    }
-
-    .quiz-opcion.correcta {
-      background: var(--verde-bg);
-      border-color: var(--verde);
-      color: var(--verde-dark);
-    }
-
-    .quiz-opcion.incorrecta {
-      background: var(--rojo-bg);
-      border-color: var(--rojo);
-      color: #991b1b;
-    }
-
-    .quiz-feedback {
-      display: none;
-      margin-top: 12px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-    }
-
-    .quiz-feedback.ok {
-      display: block;
-      background: var(--verde-bg);
-      color: var(--verde-dark);
-    }
-
-    .quiz-feedback.mal {
-      display: block;
-      background: var(--rojo-bg);
-      color: #991b1b;
-    }
-
-    /* ============================================================
-       CHAT ASISTENTE IA
-    ============================================================ */
-    .chat-msgs {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 16px;
-      max-height: 320px;
-      overflow-y: auto;
-      padding: 4px;
-    }
-
-    .msg {
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.6;
-      max-width: 85%;
-    }
-
-    .msg.bot {
-      background: var(--azul-bg);
-      color: #1e40af;
-      border: 1px solid var(--azul-borde);
-      align-self: flex-start;
-      border-radius: 4px 14px 14px 14px;
-    }
-
-    .msg.user {
-      background: var(--verde-bg);
-      color: var(--verde-dark);
-      border: 1px solid var(--verde-borde);
-      align-self: flex-end;
-      border-radius: 14px 4px 14px 14px;
-    }
-
-    .chat-input-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .chat-input-row input {
-      flex: 1;
-      padding: 11px 16px;
-      border: 1.5px solid var(--gris-200);
-      border-radius: 10px;
-      font-family: var(--fuente);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .chat-input-row input:focus {
-      border-color: var(--verde);
-    }
-
-    .chips-rapidos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .chip {
-      font-size: 12px;
-      padding: 6px 14px;
-      border-radius: 99px;
-      border: 1.5px solid var(--verde-borde);
-      background: var(--verde-bg);
-      color: var(--verde-dark);
-      cursor: pointer;
-      font-family: var(--fuente);
-      transition: all 0.15s;
-    }
-
-    .chip:hover {
-      background: var(--verde);
-      color: var(--blanco);
-    }
-
-    /* ============================================================
-       RESPONSIVE — para pantallas pequeñas
-    ============================================================ */
-    @media (max-width: 768px) {
-      .layout {
-        flex-direction: column;
-        padding: 0 16px;
-      }
-      .sidebar {
-        width: 100%;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- ============================================================
-       HEADER
-  ============================================================ -->
-  <header>
-    <span class="logo">🐍</span>
-    <div>
-      <h1>PyLearn</h1>
-      <p>Aprende Python paso a paso con ejercicios y asistente IA</p>
-    </div>
-  </header>
-
-  <!-- ============================================================
-       LAYOUT: sidebar + contenido
-  ============================================================ -->
-  <div class="layout">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-
-      <!-- Tarjeta de progreso -->
-      <div class="card-progreso">
-        <h2>Mi progreso</h2>
-        <div class="barra-wrap">
-          <div class="barra-fill" id="barra-fill"></div>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{padding:1rem 0}
+.tabs{display:flex;gap:8px;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#378ADD;border-bottom-color:#378ADD}
+.panel{display:none}.panel.active{display:block}
+
+/* ADMIN */
+.admin-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.admin-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field textarea,.field select{width:100%;padding:8px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;font-family:var(--font-sans)}
+.field textarea{resize:vertical;min-height:60px}
+.upload-area{border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .15s;position:relative}
+.upload-area:hover{border-color:#378ADD}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-area p{font-size:13px;color:var(--color-text-secondary)}
+.preview-img{width:100%;max-height:160px;object-fit:contain;border-radius:var(--border-radius-md);margin-top:8px}
+.colors-editor{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.color-tag{display:flex;align-items:center;gap:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:999px;padding:3px 10px 3px 6px;font-size:12px;color:var(--color-text-primary)}
+.color-dot-sm{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.color-tag button{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:14px;line-height:1;padding:0 0 0 2px}
+.color-input-row{display:flex;gap:6px;margin-top:6px}
+.color-input-row input[type=text]{flex:1}
+.color-input-row input[type=color]{width:36px;height:36px;padding:2px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary)}
+.sizes-check{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.size-check{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--color-text-primary);cursor:pointer}
+.save-btn{width:100%;padding:10px;border-radius:var(--border-radius-md);border:none;background:#378ADD;color:white;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s}
+.save-btn:hover{opacity:.88}
+.products-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.admin-product{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem;position:relative}
+.admin-product img{width:100%;height:90px;object-fit:cover;border-radius:var(--border-radius-md);margin-bottom:8px}
+.admin-product-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.admin-product-price{font-size:12px;color:var(--color-text-secondary)}
+.del-btn{position:absolute;top:8px;right:8px;background:#E24B4A;color:white;border:none;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.wsp-field{display:flex;gap:8px;align-items:center}
+.wsp-field input{flex:1}
+.wsp-save{padding:8px 14px;border-radius:var(--border-radius-md);border:none;background:#25D366;color:white;font-size:13px;font-weight:500;cursor:pointer}
+
+/* TIENDA */
+.store-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:1.5rem}
+.prod-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.prod-card:hover{border-color:var(--color-border-secondary)}
+.prod-card img{width:100%;height:150px;object-fit:cover;display:block}
+.prod-card-body{padding:.75rem}
+.prod-card-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.prod-card-price{font-size:13px;color:#378ADD;margin-top:2px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);width:100%;max-width:420px;padding:1.25rem;max-height:90vh;overflow-y:auto}
+.modal-close{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--color-text-secondary);margin-left:8px}
+.modal-img{width:100%;height:200px;object-fit:contain;border-radius:var(--border-radius-md);margin-bottom:1rem;background:var(--color-background-secondary)}
+.modal-name{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.modal-price{font-size:15px;color:#378ADD;margin:4px 0 12px}
+.sect{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-secondary);margin-bottom:6px}
+.color-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.color-opt{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .1s}
+.color-opt:hover{transform:scale(1.12)}
+.color-opt.sel{box-shadow:0 0 0 2px var(--color-background-primary),0 0 0 4px #378ADD}
+.size-opts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.size-opt{padding:5px 13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary);transition:all .1s}
+.size-opt:hover{background:var(--color-background-secondary)}
+.size-opt.sel{background:#378ADD;color:white;border-color:#378ADD}
+.qty-row{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.qty-btn{width:30px;height:30px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:16px;cursor:pointer}
+.qty-num{font-size:14px;font-weight:500;min-width:18px;text-align:center;color:var(--color-text-primary)}
+.modal-add{width:100%;padding:10px;border-radius:var(--border-radius-md);border:none;background:#378ADD;color:white;font-size:14px;font-weight:500;cursor:pointer}
+.modal-add:disabled{opacity:.4;cursor:not-allowed}
+
+/* CARRITO */
+.cart-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.cart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.cart-hd{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.badge{background:#378ADD;color:white;font-size:11px;border-radius:999px;padding:2px 7px}
+.empty{text-align:center;padding:1.5rem;font-size:13px;color:var(--color-text-secondary)}
+.cart-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:0.5px solid var(--color-border-tertiary)}
+.cart-item-img{width:44px;height:44px;object-fit:cover;border-radius:var(--border-radius-md);flex-shrink:0}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-size:13px;font-weight:500;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-detail{font-size:12px;color:var(--color-text-secondary)}
+.cart-item-price{font-size:13px;font-weight:500;color:var(--color-text-primary);white-space:nowrap}
+.rm-btn{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:18px;padding:0 4px}
+.rm-btn:hover{color:#E24B4A}
+.total-row{display:flex;justify-content:space-between;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary);margin-top:4px}
+.total-lbl{font-size:14px;color:var(--color-text-secondary)}
+.total-val{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.wsp-btn{width:100%;padding:11px;border-radius:var(--border-radius-md);border:none;background:#25D366;color:white;font-size:14px;font-weight:500;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.wsp-btn:hover{opacity:.9}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2C2C2A;color:white;padding:8px 18px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+.empty-store{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:13px}
+</style>
+
+<h2 class="sr-only">Tienda de polos con carrito y envío por WhatsApp</h2>
+<div class="app">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('store')">🛍️ Tienda</button>
+    <button class="tab" onclick="switchTab('admin')">⚙️ Administrar</button>
+  </div>
+
+  <!-- TIENDA -->
+  <div class="panel active" id="panel-store">
+    <div class="store-grid" id="storeGrid"></div>
+    <div class="cart-box">
+      <div class="cart-top">
+        <span class="cart-hd">Carrito de compras</span>
+        <span class="badge" id="cartBadge">0</span>
+      </div>
+      <div id="cartItems"><div class="empty">Tu carrito está vacío</div></div>
+      <div id="cartFooter" style="display:none">
+        <div class="total-row">
+          <span class="total-lbl">Total del pedido</span>
+          <span class="total-val" id="totalVal">S/ 0.00</span>
         </div>
-        <p class="barra-label" id="barra-label">0 de 6 lecciones</p>
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-num" id="stat-done">0</div>
-            <div class="stat-lbl">lecciones</div>
-          </div>
-          <div class="stat">
-            <div class="stat-num" id="stat-pts">0</div>
-            <div class="stat-lbl">puntos</div>
-          </div>
+        <button class="wsp-btn" onclick="sendWhatsApp()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar pedido por WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="panel" id="panel-admin">
+    <div class="admin-card">
+      <div class="admin-title">📱 Número de WhatsApp</div>
+      <div class="field">
+        <label>Número (con código de país, sin + ni espacios)</label>
+        <div class="wsp-field">
+          <input type="text" id="wspNum" placeholder="51999999999" value="51999999999">
+          <button class="wsp-save" onclick="saveWsp()">Guardar</button>
         </div>
       </div>
-
-      <!-- Menú de lecciones -->
-      <nav class="menu-lecciones">
-        <h2>Lecciones</h2>
-        <div class="menu-item activo" onclick="cargarLeccion(0)">
-          <div class="menu-icon" id="icon-0">📘</div>
-          <div class="menu-texto">
-            <h3>Variables</h3>
-            <p>int, float, str, bool</p>
-          </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-title">➕ Agregar producto</div>
+      <div class="field">
+        <label>Foto del polo</label>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" accept="image/*" onchange="handleImg(event)" id="imgInput">
+          <p id="uploadTxt">📷 Haz clic o arrastra una foto aquí</p>
+          <img id="imgPreview" class="preview-img" style="display:none">
         </div>
-        <div class="menu-item" onclick="cargarLeccion(1)">
-          <div class="menu-icon" id="icon-1">🔁</div>
-          <div class="menu-texto">
-            <h3>Bucles</h3>
-            <p>for y while</p>
-          </div>
+      </div>
+      <div class="field"><label>Nombre del producto</label><input type="text" id="prodName" placeholder="Polo básico blanco"></div>
+      <div class="field"><label>Precio (S/)</label><input type="number" id="prodPrice" placeholder="35" min="1"></div>
+      <div class="field"><label>Descripción (opcional)</label><textarea id="prodDesc" placeholder="Polo de algodón 100%, muy cómodo..."></textarea></div>
+      <div class="field">
+        <label>Colores disponibles</label>
+        <div id="colorTags" class="colors-editor"></div>
+        <div class="color-input-row">
+          <input type="text" id="colorName" placeholder="Ej: Blanco, Azul marino...">
+          <input type="color" id="colorPick" value="#378ADD">
+          <button class="wsp-save" onclick="addColor()">+</button>
         </div>
-        <div class="menu-item" onclick="cargarLeccion(2)">
-          <div class="menu-icon" id="icon-2">❓</div>
-          <div class="menu-texto">
-            <h3>Condicionales</h3>
-            <p>if, elif, else</p>
-          </div>
+      </div>
+      <div class="field">
+        <label>Tallas disponibles</label>
+        <div class="sizes-check" id="sizesCheck">
+          ${['XS','S','M','L','XL','XXL'].map(s=>`<label class="size-check"><input type="checkbox" value="${s}" checked> ${s}</label>`).join('')}
         </div>
-        <div class="menu-item" onclick="cargarLeccion(3)">
-          <div class="menu-icon" id="icon-3">⚙️</div>
-          <div class="menu-texto">
-            <h3>Funciones</h3>
-            <p>def y return</p>
-          </div>
-        </div>
-        <div class="menu-item" onclick="cargarLeccion(4)">
-          <div class="menu-icon" id="icon-4">📋</div>
-          <div class="menu-texto">
-            <h3>Listas</h3>
-            <p>y diccionarios</p>
-          </div>
-        </div>
-        <div class="menu-item" onclick="cargarLeccion(5)">
-          <div class="menu-icon" id="icon-5">🏗️</div>
-          <div class="menu-texto">
-            <h3>Clases</h3>
-            <p>y objetos (POO)</p>
-          </div>
-        </div>
-      </nav>
+      </div>
+      <button class="save-btn" onclick="addProduct()">Guardar producto</button>
+    </div>
+    <div class="admin-card">
+      <div class="admin-title">📦 Productos registrados</div>
+      <div class="products-list" id="adminProductList"></div>
+    </div>
+  </div>
+</div>
 
-    </aside>
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">×</button>
+    <img id="mImg" class="modal-img" src="" alt="">
+    <div id="mName" class="modal-name"></div>
+    <div id="mPrice" class="modal-price"></div>
+    <div id="mDesc" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px"></div>
+    <div class="sect">Color</div>
+    <div class="color-opts" id="mColors"></div>
+    <div class="sect">Talla</div>
+    <div class="size-opts" id="mSizes"></div>
+    <div class="sect">Cantidad</div>
+    <div class="qty-row">
+      <button class="qty-btn" onclick="chgQty(-1)">−</button>
+      <span class="qty-num" id="mQty">1</span>
+      <button class="qty-btn" onclick="chgQty(1)">+</button>
+    </div>
+    <button class="modal-add" id="mAddBtn" onclick="addToCart()" disabled>Selecciona color y talla</button>
+  </div>
+</div>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="contenido">
+<div class="toast" id="toast"></div>
 
-      <!-- TARJETA DE LECCIÓN -->
-      <div class="card-leccion">
+<script>
+let products = JSON.parse(localStorage.getItem('polo_products') || '[]');
+let cart = [];
+let wspNumber = localStorage.getItem('polo_wsp') || '51999999999';
+let newColors = [];
+let imgData = null;
+let modalProduct = null;
+let selColor = null;
+let selSize = null;
+let mQty = 1;
 
-        <!-- Encabezado de la lección (cambia dinámicamente) -->
-        <div class="leccion-header" id="leccion-header">
-          <h2 id="leccion-titulo">Variables y tipos de datos</h2>
-          <p id="leccion-desc">En Python las variables guardan información. No necesitas declarar el tipo — Python lo detecta solo.</p>
-        </div>
+document.getElementById('wspNum').value = wspNumber;
 
-        <!-- Cuerpo con tabs -->
-        <div class="leccion-body">
-
-          <!-- Tabs: Lección / Quiz / Asistente -->
-          <div class="tabs-header">
-            <button class="tab-btn activo" onclick="cambiarTab('leccion', this)">📖 Lección</button>
-            <button class="tab-btn" onclick="cambiarTab('quiz', this)">🧠 Quiz</button>
-            <button class="tab-btn" onclick="cambiarTab('asistente', this)">🤖 Asistente IA</button>
-          </div>
-
-          <!-- ====== TAB: LECCIÓN ====== -->
-          <div class="tab-panel activo" id="tab-leccion">
-
-            <p class="seccion-titulo">Ejemplo de código</p>
-
-            <!-- Bloque de código con colores (se actualiza con JS) -->
-            <div class="code-block">
-              <pre id="codigo-ejemplo"></pre>
-            </div>
-
-            <p class="seccion-titulo">Tu turno — escribe y prueba</p>
-
-            <!-- Editor de código -->
-            <div class="editor-wrap">
-              <div class="editor-topbar">
-                <div class="dot dot-r"></div>
-                <div class="dot dot-y"></div>
-                <div class="dot dot-g"></div>
-                <span>ejercicio.py</span>
-              </div>
-              <textarea id="editor-codigo" spellcheck="false"></textarea>
-            </div>
-
-            <!-- Botones -->
-            <div class="botones">
-              <button class="btn-verde" onclick="ejecutarCodigo()">▶ Ejecutar</button>
-              <button class="btn-outline" onclick="marcarCompleta()">✓ Completar lección</button>
-              <button class="btn-gris" onclick="resetearCodigo()">↺ Restablecer</button>
-            </div>
-
-            <!-- Resultado de ejecución -->
-            <div class="output-box" id="output-box">
-              <div class="output-label">Salida:</div>
-              <div class="output-text" id="output-text"></div>
-            </div>
-
-          </div>
-
-          <!-- ====== TAB: QUIZ ====== -->
-          <div class="tab-panel" id="tab-quiz">
-            <div id="quiz-contenido"></div>
-            <div style="margin-top:16px">
-              <button class="btn-azul" onclick="nuevoQuiz()">🎲 Nuevo quiz</button>
-            </div>
-          </div>
-
-          <!-- ====== TAB: ASISTENTE IA ====== -->
-          <div class="tab-panel" id="tab-asistente">
-            <p style="font-size:13px;color:var(--gris-400);margin-bottom:14px">
-              Pregunta cualquier duda sobre Python — el asistente responde en español.
-            </p>
-
-            <!-- Preguntas rápidas -->
-            <div class="chips-rapidos">
-              <button class="chip" onclick="preguntarIA('¿Qué es una variable en Python?')">¿Qué es una variable?</button>
-              <button class="chip" onclick="preguntarIA('¿Cómo funciona range()?')">¿Cómo funciona range()?</button>
-              <button class="chip" onclick="preguntarIA('¿Cuándo usar funciones?')">¿Cuándo usar funciones?</button>
-              <button class="chip" onclick="preguntarIA('Explícame los diccionarios')">Diccionarios</button>
-            </div>
-
-            <!-- Mensajes del chat -->
-            <div class="chat-msgs" id="chat-msgs">
-              <div class="msg bot">
-                ¡Hola! Soy tu tutor de Python 🐍 Pregúntame lo que quieras sobre el lenguaje, con gusto te explico.
-              </div>
-            </div>
-
-            <!-- Campo de texto -->
-            <div class="chat-input-row">
-              <input type="text" id="chat-input" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter') enviarMensaje()" />
-              <button class="btn-verde" onclick="enviarMensaje()">Enviar</button>
-            </div>
-          </div>
-
-        </div><!-- fin leccion-body -->
-      </div><!-- fin card-leccion -->
-
-    </main>
-  </div><!-- fin layout -->
-
-
-  <!-- ============================================================
-       JAVASCRIPT — toda la lógica
-  ============================================================ -->
-  <script>
-
-    /* ----------------------------------------------------------
-       DATOS DE CADA LECCIÓN
-       code: el HTML con spans de color para mostrar
-       starter: código de inicio en el editor del usuario
-    ---------------------------------------------------------- */
-    const LECCIONES = [
-      {
-        titulo: "Variables y tipos de datos",
-        desc: "En Python las variables guardan información. No necesitas declarar el tipo — Python lo detecta solo. Los tipos básicos son: int, float, str y bool.",
-        nivel: "Básico",
-        code: `<span class="py-cm"># Los cuatro tipos básicos de Python</span>
-<span class="py-fn">nombre</span>    = <span class="py-str">"Ana"</span>       <span class="py-cm"># str  → texto</span>
-<span class="py-fn">edad</span>      = <span class="py-num">25</span>         <span class="py-cm"># int  → entero</span>
-<span class="py-fn">altura</span>    = <span class="py-num">1.65</span>       <span class="py-cm"># float → decimal</span>
-<span class="py-fn">activo</span>    = <span class="py-kw">True</span>       <span class="py-cm"># bool → verdadero/falso</span>
-
-<span class="py-cm"># Imprimir con f-string (texto + variable)</span>
-<span class="py-fn">print</span>(<span class="py-str">f"Hola, {nombre}, tienes {edad} años"</span>)
-<span class="py-fn">print</span>(<span class="py-fn">type</span>(altura))   <span class="py-cm"># → &lt;class 'float'&gt;</span>`,
-        starter: `# Crea tus propias variables e imprímelas
-nombre = "Tu nombre"
-edad = 20
-ciudad = "Lima"
-
-print(f"Hola, soy {nombre}")
-print(f"Tengo {edad} años y vivo en {ciudad}")`
-      },
-      {
-        titulo: "Bucles for y while",
-        desc: "Los bucles repiten código. El 'for' recorre una secuencia. El 'while' repite mientras una condición sea True.",
-        nivel: "Básico",
-        code: `<span class="py-cm"># Bucle for — recorre números del 1 al 5</span>
-<span class="py-kw">for</span> i <span class="py-kw">in</span> <span class="py-fn">range</span>(<span class="py-num">1</span>, <span class="py-num">6</span>):
-    <span class="py-fn">print</span>(<span class="py-str">f"Número: {i}"</span>)
-
-<span class="py-cm"># Bucle while — repite mientras se cumpla la condición</span>
-<span class="py-fn">cuenta</span> = <span class="py-num">0</span>
-<span class="py-kw">while</span> cuenta &lt; <span class="py-num">3</span>:
-    <span class="py-fn">print</span>(<span class="py-str">"Vuelta número:"</span>, cuenta)
-    <span class="py-fn">cuenta</span> += <span class="py-num">1</span>  <span class="py-cm"># suma 1 en cada vuelta</span>`,
-        starter: `# Imprime la tabla del 7 (del 7 al 70)
-for i in range(1, 11):
-    print(f"7 x {i} = {7 * i}")`
-      },
-      {
-        titulo: "Condicionales if / else",
-        desc: "Las condiciones hacen que tu programa tome decisiones. Usa if para la condición principal, elif para adicionales y else para el caso por defecto.",
-        nivel: "Básico",
-        code: `<span class="py-fn">nota</span> = <span class="py-num">85</span>
-
-<span class="py-kw">if</span> nota >= <span class="py-num">90</span>:
-    <span class="py-fn">print</span>(<span class="py-str">"Sobresaliente 🏆"</span>)
-<span class="py-kw">elif</span> nota >= <span class="py-num">70</span>:
-    <span class="py-fn">print</span>(<span class="py-str">"Aprobado ✅"</span>)
-<span class="py-kw">elif</span> nota >= <span class="py-num">50</span>:
-    <span class="py-fn">print</span>(<span class="py-str">"Regular 😐"</span>)
-<span class="py-kw">else</span>:
-    <span class="py-fn">print</span>(<span class="py-str">"Reprobado ❌"</span>)`,
-        starter: `# Clasifica la temperatura
-temp = 28
-
-if temp > 35:
-    print("Muy caluroso")
-elif temp > 25:
-    print("Agradable")
-elif temp > 15:
-    print("Fresco")
-else:
-    print("Frío")`
-      },
-      {
-        titulo: "Funciones",
-        desc: "Las funciones agrupan código reutilizable. Se definen con 'def', reciben parámetros y pueden devolver un valor con 'return'.",
-        nivel: "Intermedio",
-        code: `<span class="py-cm"># Definir una función</span>
-<span class="py-kw">def</span> <span class="py-fn">saludar</span>(nombre, formal=<span class="py-kw">False</span>):
-    <span class="py-kw">if</span> formal:
-        <span class="py-kw">return</span> <span class="py-str">f"Buenos días, {nombre}."</span>
-    <span class="py-kw">return</span> <span class="py-str">f"¡Hola, {nombre}!"</span>
-
-<span class="py-cm"># Llamar la función</span>
-<span class="py-fn">print</span>(<span class="py-fn">saludar</span>(<span class="py-str">"María"</span>))
-<span class="py-fn">print</span>(<span class="py-fn">saludar</span>(<span class="py-str">"Sr. García"</span>, formal=<span class="py-kw">True</span>))
-
-<span class="py-cm"># Función que calcula y devuelve un valor</span>
-<span class="py-kw">def</span> <span class="py-fn">cuadrado</span>(n):
-    <span class="py-kw">return</span> n * n
-
-<span class="py-fn">print</span>(<span class="py-fn">cuadrado</span>(<span class="py-num">5</span>))  <span class="py-cm"># → 25</span>`,
-        starter: `# Crea una función que calcule el área de un rectángulo
-def area(base, altura):
-    return base * altura
-
-# Prueba con diferentes valores
-print(area(5, 3))
-print(area(10, 7))`
-      },
-      {
-        titulo: "Listas y diccionarios",
-        desc: "Las listas guardan colecciones ordenadas. Los diccionarios guardan pares clave-valor para buscar información rápidamente.",
-        nivel: "Intermedio",
-        code: `<span class="py-cm"># Lista — colección ordenada</span>
-<span class="py-fn">frutas</span> = [<span class="py-str">"manzana"</span>, <span class="py-str">"pera"</span>, <span class="py-str">"uva"</span>]
-<span class="py-fn">frutas</span>.<span class="py-fn">append</span>(<span class="py-str">"kiwi"</span>)  <span class="py-cm"># agrega al final</span>
-<span class="py-fn">print</span>(frutas[<span class="py-num">0</span>])          <span class="py-cm"># → manzana</span>
-<span class="py-fn">print</span>(<span class="py-fn">len</span>(frutas))         <span class="py-cm"># → 4</span>
-
-<span class="py-cm"># Diccionario — clave: valor</span>
-<span class="py-fn">persona</span> = {
-    <span class="py-str">"nombre"</span>: <span class="py-str">"Luis"</span>,
-    <span class="py-str">"edad"</span>:   <span class="py-num">30</span>,
-    <span class="py-str">"ciudad"</span>: <span class="py-str">"Lima"</span>
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['store','admin'][i]===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  if(t==='store') renderStore();
+  if(t==='admin') renderAdminList();
 }
-<span class="py-fn">print</span>(persona[<span class="py-str">"nombre"</span>])   <span class="py-cm"># → Luis</span>`,
-        starter: `# Lista de países y recorrerla
-paises = ["Perú", "México", "España", "Argentina"]
 
-for pais in paises:
-    print(pais)
+function saveWsp() {
+  wspNumber = document.getElementById('wspNum').value.trim().replace(/\D/g,'');
+  localStorage.setItem('polo_wsp', wspNumber);
+  toast('✓ Número guardado');
+}
 
-# Diccionario con información
-info = {"capital": "Lima", "idioma": "Español"}
-print(info["capital"])`
-      },
-      {
-        titulo: "Clases y objetos",
-        desc: "La programación orientada a objetos organiza el código en 'clases'. Una clase es un molde; los objetos son instancias creadas a partir de ese molde.",
-        nivel: "Avanzado",
-        code: `<span class="py-kw">class</span> <span class="py-cls">Perro</span>:
-    <span class="py-cm"># __init__ se ejecuta al crear el objeto</span>
-    <span class="py-kw">def</span> <span class="py-fn">__init__</span>(<span class="py-kw">self</span>, nombre, raza):
-        <span class="py-kw">self</span>.nombre = nombre
-        <span class="py-kw">self</span>.raza   = raza
+function handleImg(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    imgData = ev.target.result;
+    const prev = document.getElementById('imgPreview');
+    prev.src = imgData;
+    prev.style.display = 'block';
+    document.getElementById('uploadTxt').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
 
-    <span class="py-cm"># Método (función dentro de la clase)</span>
-    <span class="py-kw">def</span> <span class="py-fn">ladrar</span>(<span class="py-kw">self</span>):
-        <span class="py-kw">return</span> <span class="py-str">f"{self.nombre} dice: ¡Guau!"</span>
+function addColor() {
+  const name = document.getElementById('colorName').value.trim();
+  const hex = document.getElementById('colorPick').value;
+  if(!name) return;
+  newColors.push({name, hex});
+  document.getElementById('colorName').value = '';
+  renderColorTags();
+}
 
-<span class="py-cm"># Crear un objeto (instancia)</span>
-<span class="py-fn">mi_perro</span> = <span class="py-cls">Perro</span>(<span class="py-str">"Rex"</span>, <span class="py-str">"Labrador"</span>)
-<span class="py-fn">print</span>(mi_perro.<span class="py-fn">ladrar</span>())
-<span class="py-fn">print</span>(mi_perro.nombre)  <span class="py-cm"># → Rex</span>`,
-        starter: `# Crea una clase Animal
-class Animal:
-    def __init__(self, nombre, sonido):
-        self.nombre = nombre
-        self.sonido = sonido
+function renderColorTags() {
+  document.getElementById('colorTags').innerHTML = newColors.map((c,i)=>`
+    <div class="color-tag">
+      <div class="color-dot-sm" style="background:${c.hex}"></div>
+      ${c.name}
+      <button onclick="newColors.splice(${i},1);renderColorTags()">×</button>
+    </div>`).join('');
+}
 
-    def hablar(self):
-        return f"{self.nombre} hace: {self.sonido}"
+function addProduct() {
+  const name = document.getElementById('prodName').value.trim();
+  const price = parseFloat(document.getElementById('prodPrice').value);
+  const desc = document.getElementById('prodDesc').value.trim();
+  const sizes = Array.from(document.querySelectorAll('#sizesCheck input:checked')).map(c=>c.value);
+  if(!name || !price || !imgData) { toast('⚠️ Completa nombre, precio y foto'); return; }
+  if(newColors.length === 0) { toast('⚠️ Agrega al menos un color'); return; }
+  if(sizes.length === 0) { toast('⚠️ Selecciona al menos una talla'); return; }
+  const prod = { id: Date.now(), name, price, desc, img: imgData, colors: [...newColors], sizes };
+  products.push(prod);
+  localStorage.setItem('polo_products', JSON.stringify(products));
+  newColors = [];
+  imgData = null;
+  document.getElementById('prodName').value = '';
+  document.getElementById('prodPrice').value = '';
+  document.getElementById('prodDesc').value = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('uploadTxt').style.display = 'block';
+  document.getElementById('imgInput').value = '';
+  renderColorTags();
+  renderAdminList();
+  toast('✓ Producto guardado');
+}
 
-gato = Animal("Gato", "Miau")
-perro = Animal("Perro", "Guau")
+function deleteProduct(id) {
+  products = products.filter(p=>p.id!==id);
+  localStorage.setItem('polo_products', JSON.stringify(products));
+  renderAdminList();
+  renderStore();
+  toast('Producto eliminado');
+}
 
-print(gato.hablar())
-print(perro.hablar())`
-      }
-    ];
+function renderAdminList() {
+  const el = document.getElementById('adminProductList');
+  if(!products.length){ el.innerHTML = '<p style="font-size:13px;color:var(--color-text-secondary)">Sin productos aún</p>'; return; }
+  el.innerHTML = products.map(p=>`
+    <div class="admin-product">
+      <button class="del-btn" onclick="deleteProduct(${p.id})">×</button>
+      <img src="${p.img}" alt="${p.name}">
+      <div class="admin-product-name">${p.name}</div>
+      <div class="admin-product-price">S/ ${p.price.toFixed(2)}</div>
+    </div>`).join('');
+}
 
-    /* ----------------------------------------------------------
-       PREGUNTAS DE QUIZ por lección
-    ---------------------------------------------------------- */
-    const QUIZZES = [
-      [
-        { p: "¿Cuál es el tipo de: nombre = 'Ana'?", opts: ["int", "float", "str", "bool"], resp: 2 },
-        { p: "¿Qué imprime print(type(3.14))?", opts: ["<class 'int'>", "<class 'float'>", "<class 'str'>", "error"], resp: 1 },
-        { p: "¿Cuál variable guarda True o False?", opts: ["int", "str", "float", "bool"], resp: 3 },
-      ],
-      [
-        { p: "¿Qué produce range(1, 4)?", opts: ["1,2,3,4", "1,2,3", "0,1,2,3", "0,1,2"], resp: 1 },
-        { p: "¿Cuándo para un bucle while?", opts: ["Nunca", "Cuando la condición es False", "Después de 10 vueltas", "Cuando hay un error"], resp: 1 },
-        { p: "¿Qué hace 'cuenta += 1'?", opts: ["Resta 1", "Multiplica por 1", "Suma 1 a cuenta", "Divide entre 1"], resp: 2 },
-      ],
-      [
-        { p: "¿Qué palabra va si la primera condición falla?", opts: ["else if", "elif", "elseif", "or"], resp: 1 },
-        { p: "¿Cuándo se ejecuta el bloque 'else'?", opts: ["Siempre", "Si el if es True", "Si ninguna condición fue True", "Nunca"], resp: 2 },
-        { p: "¿Qué operador compara igualdad?", opts: ["=", "!=", "==", "=>"], resp: 2 },
-      ],
-      [
-        { p: "¿Qué palabra define una función?", opts: ["function", "func", "def", "define"], resp: 2 },
-        { p: "¿Qué hace 'return'?", opts: ["Termina el programa", "Devuelve un valor", "Imprime algo", "Crea una variable"], resp: 1 },
-        { p: "¿Qué es un parámetro con valor por defecto?", opts: ["Un error", "Un parámetro que ya tiene un valor si no lo pasas", "Un valor obligatorio", "Una constante"], resp: 1 },
-      ],
-      [
-        { p: "¿Cómo accedes al primer elemento de lista = [10, 20, 30]?", opts: ["lista[1]", "lista.first()", "lista[0]", "lista(-1)"], resp: 2 },
-        { p: "¿Qué método añade un elemento al final de una lista?", opts: [".add()", ".push()", ".append()", ".insert()"], resp: 2 },
-        { p: "¿Cómo accedes al valor de un diccionario con clave 'edad'?", opts: ["dic.edad", "dic['edad']", "dic(edad)", "dic->edad"], resp: 1 },
-      ],
-      [
-        { p: "¿Qué método se llama automáticamente al crear un objeto?", opts: ["__start__", "__create__", "__init__", "__new__"], resp: 2 },
-        { p: "¿Qué es 'self' en un método?", opts: ["El módulo actual", "Una variable global", "La referencia al objeto mismo", "Un tipo de dato"], resp: 2 },
-        { p: "¿Cómo se crea un objeto de la clase Perro?", opts: ["Perro.new()", "new Perro()", "Perro()", "create Perro()"], resp: 2 },
-      ],
-    ];
+function renderStore() {
+  const grid = document.getElementById('storeGrid');
+  if(!products.length){
+    grid.innerHTML = '<div class="empty-store">🛍️ Aún no hay productos.<br>Ve a <b>Administrar</b> para agregar.</div>';
+    return;
+  }
+  grid.innerHTML = products.map(p=>`
+    <div class="prod-card" onclick="openModal(${p.id})">
+      <img src="${p.img}" alt="${p.name}">
+      <div class="prod-card-body">
+        <div class="prod-card-name">${p.name}</div>
+        <div class="prod-card-price">S/ ${p.price.toFixed(2)}</div>
+      </div>
+    </div>`).join('');
+}
 
-    /* ----------------------------------------------------------
-       ESTADO GLOBAL
-    ---------------------------------------------------------- */
-    let leccionActual = 0;
-    let completadas = new Set();
-    let puntos = 0;
-    let historialChat = [];
+function openModal(id) {
+  modalProduct = products.find(p=>p.id===id);
+  if(!modalProduct) return;
+  selColor = null; selSize = null; mQty = 1;
+  document.getElementById('mImg').src = modalProduct.img;
+  document.getElementById('mName').textContent = modalProduct.name;
+  document.getElementById('mPrice').textContent = 'S/ ' + modalProduct.price.toFixed(2);
+  document.getElementById('mDesc').textContent = modalProduct.desc || '';
+  document.getElementById('mQty').textContent = '1';
+  document.getElementById('mColors').innerHTML = modalProduct.colors.map(c=>`
+    <div class="color-opt" style="background:${c.hex};border-color:${c.hex}" title="${c.name}" onclick="pickColor('${c.name}','${c.hex}',this)"></div>`).join('');
+  document.getElementById('mSizes').innerHTML = modalProduct.sizes.map(s=>`
+    <div class="size-opt" onclick="pickSize('${s}',this)">${s}</div>`).join('');
+  updateModalBtn();
+  document.getElementById('modal').style.display = 'flex';
+}
 
-    /* ----------------------------------------------------------
-       CARGAR LECCIÓN
-    ---------------------------------------------------------- */
-    function cargarLeccion(idx) {
-      leccionActual = idx;
-      const l = LECCIONES[idx];
+function closeModal(e) { if(e.target.id==='modal') document.getElementById('modal').style.display='none'; }
 
-      // Actualizar header
-      document.getElementById("leccion-titulo").textContent = l.titulo;
-      document.getElementById("leccion-desc").textContent = l.desc;
+function pickColor(name, hex, el) {
+  selColor = {name, hex};
+  document.querySelectorAll('.color-opt').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  updateModalBtn();
+}
 
-      // Mostrar el código con colores
-      document.getElementById("codigo-ejemplo").innerHTML = l.code;
+function pickSize(s, el) {
+  selSize = s;
+  document.querySelectorAll('.size-opt').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  updateModalBtn();
+}
 
-      // Poner el código de inicio en el editor
-      document.getElementById("editor-codigo").value = l.starter;
+function chgQty(d) {
+  mQty = Math.max(1, Math.min(10, mQty+d));
+  document.getElementById('mQty').textContent = mQty;
+}
 
-      // Limpiar la salida anterior
-      const out = document.getElementById("output-box");
-      out.classList.remove("visible", "error");
+function updateModalBtn() {
+  const btn = document.getElementById('mAddBtn');
+  if(selColor && selSize) { btn.disabled=false; btn.textContent='Agregar al carrito'; }
+  else { btn.disabled=true; btn.textContent='Selecciona '+(selColor?'talla':'color y talla'); }
+}
 
-      // Actualizar menú activo
-      document.querySelectorAll(".menu-item").forEach((item, i) => {
-        item.classList.toggle("activo", i === idx);
-      });
+function addToCart() {
+  const key = `${modalProduct.id}-${selColor.name}-${selSize}`;
+  const existing = cart.find(i=>i.key===key);
+  if(existing) existing.qty = Math.min(10, existing.qty+mQty);
+  else cart.push({ key, id: modalProduct.id, name: modalProduct.name, img: modalProduct.img, price: modalProduct.price, colorName: selColor.name, colorHex: selColor.hex, size: selSize, qty: mQty });
+  document.getElementById('modal').style.display = 'none';
+  renderCart();
+  toast('✓ Agregado al carrito');
+}
 
-      // Cargar quiz de esta lección
-      construirQuiz();
+function removeItem(key) {
+  cart = cart.filter(i=>i.key!==key);
+  renderCart();
+}
 
-      // Volver al tab de lección
-      document.querySelector(".tab-btn.activo")?.classList.remove("activo");
-      document.querySelector(".tab-btn").classList.add("activo");
-      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("activo"));
-      document.getElementById("tab-leccion").classList.add("activo");
-    }
+function renderCart() {
+  const el = document.getElementById('cartItems');
+  const foot = document.getElementById('cartFooter');
+  const badge = document.getElementById('cartBadge');
+  const total = cart.reduce((a,i)=>a+i.price*i.qty,0);
+  badge.textContent = cart.reduce((a,i)=>a+i.qty,0);
+  if(!cart.length){ el.innerHTML='<div class="empty">Tu carrito está vacío</div>'; foot.style.display='none'; return; }
+  el.innerHTML = cart.map(i=>`
+    <div class="cart-item">
+      <img class="cart-item-img" src="${i.img}" alt="${i.name}">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${i.name}</div>
+        <div class="cart-item-detail">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${i.colorHex};vertical-align:middle;margin-right:4px"></span>${i.colorName} · ${i.size} · x${i.qty}
+        </div>
+      </div>
+      <div class="cart-item-price">S/ ${(i.price*i.qty).toFixed(2)}</div>
+      <button class="rm-btn" onclick="removeItem('${i.key}')">×</button>
+    </div>`).join('');
+  document.getElementById('totalVal').textContent = 'S/ ' + total.toFixed(2);
+  foot.style.display = 'block';
+}
 
-    /* ----------------------------------------------------------
-       EJECUTAR CÓDIGO (simulador básico de Python)
-       Nota: es una simulación simple — solo detecta print()
-    ---------------------------------------------------------- */
-    function ejecutarCodigo() {
-      const codigo = document.getElementById("editor-codigo").value;
-      const out = document.getElementById("output-box");
-      const outText = document.getElementById("output-text");
+function sendWhatsApp() {
+  if(!cart.length) return;
+  const lines = cart.map(i=>`• ${i.name} | Color: ${i.colorName} | Talla: ${i.size} | Cant: ${i.qty} | S/ ${(i.price*i.qty).toFixed(2)}`);
+  const total = cart.reduce((a,i)=>a+i.price*i.qty,0);
+  const msg = `🛍️ *NUEVO PEDIDO*\n\n${lines.join('\n')}\n\n*TOTAL: S/ ${total.toFixed(2)}*\n\nPor favor confirmar disponibilidad y forma de pago. ¡Gracias!`;
+  const url = `https://wa.me/${wspNumber}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
 
-      const resultado = simularPython(codigo);
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
 
-      out.classList.add("visible");
-      out.classList.toggle("error", resultado.esError);
-      outText.textContent = resultado.texto;
-    }
-
-    function simularPython(codigo) {
-      try {
-        const limpio = codigo.replace(/#[^\n]*/g, "");  // quita comentarios
-        const lineas = [];
-
-        // Detectar bucle for con range
-        const forMatch = limpio.match(/for\s+(\w+)\s+in\s+range\((\d+)(?:,\s*(\d+))?\)/);
-        if (forMatch) {
-          const variable = forMatch[1];
-          const inicio = forMatch[3] ? +forMatch[2] : 0;
-          const fin    = forMatch[3] ? +forMatch[3] : +forMatch[2];
-          const printM = limpio.match(/print\(([^)]+)\)/);
-          if (printM) {
-            for (let i = inicio; i < fin; i++) {
-              let expr = printM[1]
-                .replace(/f["']([^"']*)["']/, (_, t) =>
-                  t.replace(new RegExp(`\\{${variable}\\s*\\*\\s*(\\d+)\\}`, "g"), (m, mult) => i * +mult)
-                   .replace(new RegExp(`\\{7\\s*\\*\\s*${variable}\\}`, "g"), 7 * i)
-                   .replace(new RegExp(`\\{3\\s*\\*\\s*${variable}\\}`, "g"), 3 * i)
-                   .replace(new RegExp(`\\{${variable}\\}`, "g"), i)
-                );
-              expr = expr.replace(/["']/g, "").trim();
-              lineas.push(expr);
-            }
-            return { texto: lineas.join("\n"), esError: false };
-          }
-        }
-
-        // Detectar prints simples
-        const prints = [...limpio.matchAll(/print\(([^)]+)\)/g)];
-        if (!prints.length) {
-          return { texto: "(sin salida — usa print() para mostrar algo)", esError: false };
-        }
-
-        for (const pm of prints) {
-          let arg = pm[1].trim();
-          arg = arg.replace(/f["']([^"']*)["']/, "$1");
-          arg = arg.replace(/["']/g, "");
-          lineas.push(arg.trim());
-        }
-
-        return { texto: lineas.join("\n"), esError: false };
-      } catch (e) {
-        return { texto: "Error: " + e.message, esError: true };
-      }
-    }
-
-    function resetearCodigo() {
-      document.getElementById("editor-codigo").value = LECCIONES[leccionActual].starter;
-      const out = document.getElementById("output-box");
-      out.classList.remove("visible", "error");
-    }
-
-    function marcarCompleta() {
-      if (!completadas.has(leccionActual)) {
-        completadas.add(leccionActual);
-        puntos += 50;
-      }
-      // Marcar en el menú
-      const icon = document.getElementById("icon-" + leccionActual);
-      icon.textContent = "✅";
-      document.querySelectorAll(".menu-item")[leccionActual].classList.add("completado");
-      actualizarEstadisticas();
-    }
-
-    function actualizarEstadisticas() {
-      const total = LECCIONES.length;
-      const hechas = completadas.size;
-      const pct = Math.round(hechas / total * 100);
-
-      document.getElementById("barra-fill").style.width = pct + "%";
-      document.getElementById("barra-label").textContent = hechas + " de " + total + " lecciones";
-      document.getElementById("stat-done").textContent = hechas;
-      document.getElementById("stat-pts").textContent = puntos;
-    }
-
-    /* ----------------------------------------------------------
-       TABS
-    ---------------------------------------------------------- */
-    function cambiarTab(nombre, btn) {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("activo"));
-      btn.classList.add("activo");
-      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("activo"));
-      document.getElementById("tab-" + nombre).classList.add("activo");
-      if (nombre === "quiz") construirQuiz();
-    }
-
-    /* ----------------------------------------------------------
-       QUIZ
-    ---------------------------------------------------------- */
-    function construirQuiz() {
-      const preguntas = QUIZZES[leccionActual];
-      const html = preguntas.map((q, qi) => `
-        <div style="margin-bottom:24px">
-          <p class="quiz-pregunta">${qi + 1}. ${q.p}</p>
-          <div class="quiz-opciones">
-            ${q.opts.map((o, oi) => `
-              <button class="quiz-opcion" id="qo-${qi}-${oi}" onclick="responderQuiz(${qi}, ${oi}, ${q.resp})">
-                ${o}
-              </button>`).join("")}
-          </div>
-          <div class="quiz-feedback" id="qf-${qi}"></div>
-        </div>`).join("");
-
-      document.getElementById("quiz-contenido").innerHTML = html;
-    }
-
-    function responderQuiz(qi, oi, resp) {
-      const card = document.getElementById(`qo-${qi}-0`).closest("div");
-      card.querySelectorAll(".quiz-opcion").forEach(b => b.disabled = true);
-
-      const fb = document.getElementById("qf-" + qi);
-      if (oi === resp) {
-        document.getElementById(`qo-${qi}-${oi}`).classList.add("correcta");
-        fb.className = "quiz-feedback ok";
-        fb.textContent = "✅ ¡Correcto! +10 puntos";
-        puntos += 10;
-        actualizarEstadisticas();
-      } else {
-        document.getElementById(`qo-${qi}-${oi}`).classList.add("incorrecta");
-        document.getElementById(`qo-${qi}-${resp}`).classList.add("correcta");
-        fb.className = "quiz-feedback mal";
-        fb.textContent = "❌ Incorrecto. La respuesta correcta está en verde.";
-      }
-    }
-
-    function nuevoQuiz() {
-      construirQuiz();
-    }
-
-    /* ----------------------------------------------------------
-       ASISTENTE IA — llama a la API de Claude
-    ---------------------------------------------------------- */
-    async function enviarMensaje() {
-      const input = document.getElementById("chat-input");
-      const texto = input.value.trim();
-      if (!texto) return;
-      input.value = "";
-      preguntarIA(texto);
-    }
-
-    async function preguntarIA(texto) {
-      agregarMensaje(texto, "user");
-      historialChat.push({ role: "user", content: texto });
-
-      const thinking = agregarMensaje("Escribiendo...", "bot");
-      thinking.style.opacity = "0.6";
-      thinking.style.fontStyle = "italic";
-
-      try {
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
-            max_tokens: 800,
-            system: "Eres un tutor amigable de Python para hispanohablantes principiantes. Explica siempre en español de forma clara y con ejemplos cortos. Máximo 3 párrafos.",
-            messages: historialChat
-          })
-        });
-
-        const data = await res.json();
-        const respuesta = data.content?.[0]?.text || "No pude responder, intenta de nuevo.";
-        historialChat.push({ role: "assistant", content: respuesta });
-        thinking.textContent = respuesta;
-        thinking.style.opacity = "";
-        thinking.style.fontStyle = "";
-      } catch (e) {
-        thinking.textContent = "Error de conexión. Verifica tu red.";
-        thinking.style.opacity = "";
-      }
-    }
-
-    function agregarMensaje(texto, tipo) {
-      const wrap = document.getElementById("chat-msgs");
-      const div = document.createElement("div");
-      div.className = "msg " + tipo;
-      div.textContent = texto;
-      wrap.appendChild(div);
-      wrap.scrollTop = wrap.scrollHeight;
-      return div;
-    }
-
-    /* ----------------------------------------------------------
-       INICIALIZAR — cargar la primera lección al abrir
-    ---------------------------------------------------------- */
-    cargarLeccion(0);
-
-  </script>
-
-</body>
-</html>
+renderStore();
+renderAdminList();
+</script>

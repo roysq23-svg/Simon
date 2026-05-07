@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POLO STUDIO | Tienda Oficial</title>
+    <title>POLO STUDIO | Streetwear</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,10 +12,10 @@
 
     <header>
         <nav>
-            <div class="logo">POLO<span>STUDIO</span></div>
+            <div class="logo" id="secretLogo">POLO<span>STUDIO</span></div>
             <div class="menu">
                 <button onclick="switchTab('store')">Tienda</button>
-                <button onclick="switchTab('admin')">Admin</button>
+                <button id="tab-admin" onclick="switchTab('admin')">Admin</button>
                 <button class="cart-btn" onclick="switchTab('cart')">
                     🛒 <span id="cart-count">0</span>
                 </button>
@@ -27,8 +27,8 @@
         <section id="hero" class="panel active">
             <div class="hero-content">
                 <h1>ESTILO QUE <br> HABLA POR TI.</h1>
-                <p>Nueva colección de polos oversize ya disponible.</p>
-                <button class="btn-primary" onclick="switchTab('store')">VER COLECCIÓN</button>
+                <p>Colección Premium 2026. Envíos a todo el país.</p>
+                <button class="btn-primary" onclick="switchTab('store')">VER TIENDA</button>
             </div>
         </section>
 
@@ -40,26 +40,30 @@
 
         <section id="panel-cart" class="panel">
             <div class="cart-container">
-                <h2>Tu Carrito</h2>
+                <h2 class="section-title">Tu Pedido</h2>
                 <div id="cartItemsList"></div>
                 <div id="cartFooter" style="display:none">
                     <h3 id="cartTotalVal">Total: S/ 0.00</h3>
-                    <button class="wsp-btn" onclick="sendWhatsApp()">PEDIR POR WHATSAPP</button>
+                    <button class="wsp-btn" onclick="sendWhatsApp()">CONFIRMAR POR WHATSAPP</button>
                 </div>
             </div>
         </section>
 
         <section id="panel-admin" class="panel">
             <div class="admin-form">
-                <h3>Subir Nuevo Producto</h3>
-                <input type="file" id="imgFileInput" hidden>
-                <label for="imgFileInput" class="file-label">📷 Seleccionar Imagen</label>
+                <h3>🛠️ Panel de Control</h3>
+                <div class="field">
+                    <label for="imgFileInput" class="file-label" id="fileLabel">📷 Click para elegir foto</label>
+                    <input type="file" id="imgFileInput" accept="image/*" hidden onchange="updateLabel()">
+                </div>
                 <input type="text" id="prodName" placeholder="Nombre del polo">
                 <input type="number" id="prodPrice" placeholder="Precio (S/)">
-                <button class="save-product-btn" id="saveBtn" onclick="saveProduct()">PUBLICAR AHORA</button>
+                <button class="save-product-btn" id="saveBtn" onclick="saveProduct()">PUBLICAR PRODUCTO</button>
             </div>
         </section>
     </main>
+
+    <div id="toast" class="toast"></div>
 
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">

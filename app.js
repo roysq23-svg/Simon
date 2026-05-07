@@ -1,6 +1,6 @@
 // CONFIGURACIÓN SUPABASE
 const supabaseUrl = 'https://nbcxafnjolasdmleqjhp.supabase.co';
-const supabaseKey = 'TU_LLAVE_SB_PUBLISHABLE'; // Reemplaza con tu llave real
+const supabaseKey = 'sb_publishable_0CmPrpHpz_iz8ZOI04uZ4A_VcNCpncN'; // Reemplaza con tu llave real
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 let cart = [];

@@ -472,15 +472,19 @@ document.getElementById('wspInput').value = wspNum;
 buildSizeCheckboxes();
 renderCart();
 
-// Cargar config guardada
-const savedCfg = JSON.parse(localStorage.getItem('fb_config') || 'null');
-if (savedCfg) {
-  fillConfigFields(savedCfg);
-  initFirebase(savedCfg);
-} else {
-  setBanner('warning', '⚠️ Primero configura Firebase en la pestaña Administrar');
-  renderStore(); // muestra vacío
-}
+// ✅ TU CONFIGURACIÓN DE FIREBASE (ya integrada)
+const MI_FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyChhMzmrhNJxMV_6MeY40Dd7VojaVjG1QE",
+  authDomain:        "tienda-polos.firebaseapp.com",
+  projectId:         "tienda-polos",
+  storageBucket:     "tienda-polos.firebasestorage.app",
+  messagingSenderId: "658790096790",
+  appId:             "1:658790096790:web:341948f65da7e0be4a87b7",
+  measurementId:     "G-K37P8VNW46"
+};
+localStorage.setItem('fb_config', JSON.stringify(MI_FIREBASE_CONFIG));
+fillConfigFields(MI_FIREBASE_CONFIG);
+initFirebase(MI_FIREBASE_CONFIG);
 
 // ══════════════════════════════════════════════════
 // FIREBASE: APLICAR CONFIG

@@ -63,3 +63,137 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     .modal-img, .modal-content { width: 100%; }
     .products-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
 }
+/* MODAL MEJORADO */
+.modal-categoria {
+    background: var(--black);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.selector-section {
+    margin: 15px 0;
+}
+
+.selector-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.selector-label span {
+    color: var(--black);
+    font-weight: 700;
+}
+
+/* COLORES */
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.color-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: 0.2s;
+    position: relative;
+}
+
+.color-circle:hover {
+    transform: scale(1.1);
+}
+
+.color-circle.selected {
+    border-color: var(--black);
+    transform: scale(1.15);
+}
+
+.color-circle.sin-stock::after {
+    content: '×';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+/* TALLAS */
+.talla-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.talla-btn {
+    min-width: 48px;
+    height: 48px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 0 12px;
+}
+
+.talla-btn:hover:not(.sin-stock) {
+    border-color: var(--black);
+}
+
+.talla-btn.selected {
+    background: var(--black);
+    color: white;
+    border-color: var(--black);
+}
+
+.talla-btn.sin-stock {
+    color: #ccc;
+    border-color: #eee;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* STOCK WARNING */
+.stock-warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 15px;
+    color: #856404;
+}
+
+/* MODAL RESPONSIVE */
+@media (max-width: 600px) {
+    .modal {
+        flex-direction: column;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .modal-img {
+        width: 100%;
+        height: 250px;
+    }
+    .modal-content {
+        width: 100%;
+        padding: 20px;
+    }
+}

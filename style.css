@@ -7,16 +7,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--white);
-    color: var(--black);
-}
+body { font-family: 'Inter', sans-serif; background-color: var(--white); color: var(--black); }
 
 header {
     padding: 15px 5%;
-    position: sticky;
-    top: 0;
+    position: sticky; top: 0;
     background: rgba(255,255,255,0.95);
     backdrop-filter: blur(10px);
     z-index: 1000;
@@ -24,16 +19,7 @@ header {
 }
 
 nav { display: flex; justify-content: space-between; align-items: center; }
-
-.logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 26px;
-    font-weight: 800;
-    cursor: pointer;
-    user-select: none;
-}
-
-.logo span { color: var(--accent); }
+.logo { cursor: pointer; user-select: none; }
 
 .menu button {
     background: none; border: none;
@@ -41,9 +27,6 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     cursor: pointer; text-transform: uppercase; font-size: 12px;
 }
 
-#tab-admin { display: none; color: var(--accent); }
-
-/* HERO */
 .hero-content {
     height: 90vh;
     display: flex; flex-direction: column;
@@ -61,18 +44,16 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     cursor: pointer; transition: 0.3s;
 }
 
-.btn-primary:hover { background: var(--accent); transform: scale(1.05); }
-
-/* TIENDA */
 .section-title { text-align: center; font-family: 'Syne', sans-serif; font-size: 35px; margin: 40px 0; }
 
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; padding: 0 5% 50px; }
 
-.product-card { cursor: pointer; transition: 0.3s; }
-.product-card:hover { opacity: 0.8; }
-.product-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 4px; background: var(--gray); }
+.product-card img { 
+    width: 100%; height: 350px; 
+    object-fit: cover; /* Mantiene proporciones perfectas */
+    border-radius: 4px; background: var(--gray); 
+}
 
-/* TOAST (VENTANA FLOTANTE) */
 .toast {
     position: fixed; bottom: 20px; right: 20px;
     background: var(--black); color: white;
@@ -82,14 +63,13 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 }
 .toast.show { transform: translateY(0); }
 
-/* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
 .modal-overlay.open { display: flex; }
 .modal { background: white; display: flex; max-width: 800px; width: 100%; position: relative; flex-wrap: wrap; }
 .modal img { width: 50%; min-width: 300px; object-fit: cover; }
 .modal-info { padding: 40px; flex: 1; min-width: 300px; display: flex; flex-direction: column; justify-content: center; }
+.close-modal { position: absolute; right: 20px; top: 10px; font-size: 30px; border: none; background: none; cursor: pointer;}
 
-/* ADMIN */
 .admin-form { max-width: 450px; margin: 40px auto; padding: 30px; border: 1px solid var(--black); border-radius: 8px; }
 .admin-form input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
 .file-label { display: block; padding: 30px; border: 2px dashed #ccc; text-align: center; margin-bottom: 15px; cursor: pointer; }
@@ -97,6 +77,6 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 
 .panel { display: none; animation: fadeIn 0.5s; }
 .panel.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .wsp-btn { background: #25D366; color: white; width: 100%; padding: 15px; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; margin-top: 20px; }

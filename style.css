@@ -22,8 +22,8 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 /* TIENDA */
 .section-title { text-align: center; font-family: 'Syne', sans-serif; font-size: 32px; margin-bottom: 40px; text-transform: uppercase; }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-.product-card { cursor: pointer; transition: 0.3s; border-radius: 12px; overflow: hidden; background: white; }
-.product-card:hover { transform: translateY(-5px); }
+.product-card { cursor: pointer; transition: 0.3s; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .product-card img { width: 100%; height: 350px; object-fit: cover; background: var(--gray); }
 .product-info { padding: 20px; text-align: center; }
 
@@ -31,17 +31,20 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--black); padding-bottom: 15px; }
 .admin-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; }
 .admin-card { background: var(--gray); padding: 30px; border-radius: 15px; }
-.admin-form input, .admin-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-.file-drop-area { display: block; padding: 30px; border: 2px dashed #bbb; border-radius: 8px; text-align: center; cursor: pointer; margin-bottom: 15px; background: white; }
+.admin-form input, .admin-form textarea, .admin-form select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+.file-drop-area { display: block; padding: 30px; border: 2px dashed #bbb; border-radius: 8px; text-align: center; cursor: pointer; margin-bottom: 15px; background: white; transition: 0.3s; }
+.file-drop-area:hover { border-color: var(--black); background: #fafafa; }
 
 /* CRUD ITEMS */
-.inventory-item { display: flex; align-items: center; justify-content: space-between; background: white; padding: 15px; margin-bottom: 12px; border-radius: 10px; }
+.inventory-item { display: flex; align-items: center; justify-content: space-between; background: white; padding: 15px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .inventory-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
 
 /* BOTONES */
-.btn-primary { background: var(--black); color: white; padding: 15px 30px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+.btn-primary { background: var(--black); color: white; padding: 15px 30px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s; }
+.btn-primary:hover { opacity: 0.9; transform: scale(0.98); }
 .wsp-bg { background: #25D366; }
-.btn-outline { background: none; border: 1px solid var(--black); padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.btn-outline { background: none; border: 1px solid var(--black); padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.btn-outline:hover { background: var(--black); color: white; }
 .btn-cancel { margin-top: 10px; background: none; border: none; cursor: pointer; color: #666; width: 100%; }
 
 /* MODAL */
@@ -50,19 +53,12 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 .modal { background: white; width: 100%; max-width: 900px; border-radius: 15px; overflow: hidden; display: flex; position: relative; }
 .modal-img { width: 50%; object-fit: cover; }
 .modal-content { width: 50%; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
-.close-modal { position: absolute; right: 20px; top: 15px; font-size: 30px; border: none; background: none; cursor: pointer; }
+.close-modal { position: absolute; right: 20px; top: 15px; font-size: 30px; border: none; background: none; cursor: pointer; z-index: 10; }
 
 /* TOAST */
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--black); color: white; padding: 12px 30px; border-radius: 50px; z-index: 5000; transition: 0.4s; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* RESPONSIVO */
-@media (max-width: 850px) {
-    .admin-grid { grid-template-columns: 1fr; }
-    .modal { flex-direction: column; }
-    .modal-img, .modal-content { width: 100%; }
-    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-}
 /* MODAL MEJORADO */
 .modal-categoria {
     background: var(--black);
@@ -79,6 +75,9 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 
 .selector-section {
     margin: 15px 0;
+    background: #f5f5f5;
+    padding: 12px 15px;
+    border-radius: 12px;
 }
 
 .selector-label {
@@ -86,51 +85,83 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 10px;
-    color: #555;
+    margin-bottom: 12px;
+    color: #333;
+    background: white;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
 }
 
 .selector-label span {
     color: var(--black);
-    font-weight: 700;
+    font-weight: 800;
 }
 
-/* COLORES */
+/* ============================================
+   MEJORAS PARA VISIBILIDAD DE COLORES
+   ============================================ */
+
+/* Base para todos los círculos de color */
 .color-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    padding: 8px 0;
 }
 
 .color-circle {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     cursor: pointer;
-    border: 3px solid transparent;
+    border: 2px solid #aaa;
     transition: 0.2s;
     position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
-.color-circle:hover {
+/* Hover effect */
+.color-circle:hover:not(.sin-stock) {
     transform: scale(1.1);
+    border-color: #000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
+/* Círculo seleccionado */
 .color-circle.selected {
-    border-color: var(--black);
+    border: 3px solid #000;
     transform: scale(1.15);
+    box-shadow: 0 0 0 2px white, 0 0 0 4px #000;
 }
 
-.color-circle.sin-stock::after {
-    content: '×';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
+/* Para el color BLANCO - fondo con patrón de cuadritos */
+.color-circle[style*="background-color: #F0F0F0"],
+.color-circle[style*="background-color: #f0f0f0"],
+.color-circle[style*="background-color: rgb(240, 240, 240)"] {
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.08) 0px,
+        rgba(0,0,0,0.08) 2px,
+        transparent 2px,
+        transparent 8px
+    ) !important;
+    border: 2px solid #666;
+}
+
+/* Para colores muy claros */
+.color-circle[style*="background-color: #F5F5DC"],
+.color-circle[style*="background-color: #FFF8DC"],
+.color-circle[style*="background-color: #FFFFF0"] {
+    border: 2px solid #888;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* Para colores oscuros, borde más claro */
+.color-circle[style*="background-color: #000000"],
+.color-circle[style*="background-color: rgb(0,0,0)"] {
+    border: 2px solid #ccc;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.3);
 }
 
 /* TALLAS */
@@ -141,7 +172,7 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 }
 
 .talla-btn {
-    min-width: 48px;
+    min-width: 52px;
     height: 48px;
     border: 2px solid #ddd;
     background: white;
@@ -155,6 +186,7 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 
 .talla-btn:hover:not(.sin-stock) {
     border-color: var(--black);
+    background: #f9f9f9;
 }
 
 .talla-btn.selected {
@@ -181,7 +213,20 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     color: #856404;
 }
 
-/* MODAL RESPONSIVE */
+/* CARRITO */
+.cart-items {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* RESPONSIVE */
+@media (max-width: 850px) {
+    .admin-grid { grid-template-columns: 1fr; }
+    .modal { flex-direction: column; }
+    .modal-img, .modal-content { width: 100%; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+}
+
 @media (max-width: 600px) {
     .modal {
         flex-direction: column;
@@ -196,55 +241,8 @@ nav { display: flex; justify-content: space-between; align-items: center; }
         width: 100%;
         padding: 20px;
     }
-}
-
-/* Estilos para formulario de administración */
-#prodCategoria {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-family: inherit;
-    background: white;
-}
-
-#stockFieldsContainer table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-#stockFieldsContainer th {
-    background: var(--black);
-    color: white;
-    padding: 8px;
-    text-align: center;
-}
-
-#stockFieldsContainer td {
-    border: 1px solid #ddd;
-    text-align: center;
-}
-
-#stockFieldsContainer input {
-    text-align: center;
-}
-
-/* Estilos para items del carrito */
-.cart-items {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-/* Mejoras responsive */
-@media (max-width: 768px) {
-    #stockFieldsContainer {
-        overflow-x: auto;
-    }
-    
     .color-circle {
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
     }
 }

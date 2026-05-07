@@ -4,6 +4,9 @@ const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 let cart = [];
 let selectedPolo = null;
+let selectedColor = null;
+let selectedTalla = null;
+let currentStock = [];
 let secretClicks = 0;
 
 // NAVEGACIÓN
@@ -18,10 +21,16 @@ function switchTab(tabId) {
 
 // CARGAR TIENDA
 async function loadProducts() {
-    const { data: polos, error } = await _supabase.from('polos').select('*').order('id', { ascending: false });
+    const { data: polos, error } = await _supabase
+        .from('polos')
+        .select('*')
+        .order('id', { ascending: false });
+
     if (error) { showToast("❌ Error al cargar productos"); return; }
+
     const grid = document.getElementById('storeGrid');
     grid.innerHTML = '';
+
     polos.forEach(p => {
         grid.innerHTML += `
             <div class="product-card" onclick='openModal(${JSON.stringify(p)})'>
@@ -36,17 +45,24 @@ async function loadProducts() {
 
 // CRUD ADMIN
 async function loadInventory() {
-    const { data: polos, error } = await _supabase.from('polos').select('*').order('id', { ascending: false });
+    const { data: polos, error } = await _supabase
+        .from('polos')
+        .select('*')
+        .order('id', { ascending: false });
+
     if (error) { showToast("❌ Error al cargar inventario"); return; }
+
     const list = document.getElementById('adminInventoryList');
     list.innerHTML = '';
+
     polos.forEach(p => {
         list.innerHTML += `
             <div class="inventory-item">
                 <img src="${p.imagen_url}" onerror="this.src='https://via.placeholder.com/50'">
                 <div style="flex-grow:1; margin-left:15px;">
                     <h4 style="font-size:14px;">${p.nombre}</h4>
-                    <small>S/ ${parseFloat(p.precio).toFixed(2)}</small>
+                    <small>S/ ${parseFloat(p.precio).toFixed(2)}</small><br>
+                    <small style="color:#888;">${p.categoria || 'Sin categoría'}</small>
                 </div>
                 <button onclick='prepareEdit(${JSON.stringify(p)})' style="color:blue; background:none; border:none; cursor:pointer;">Editar</button>
                 <button onclick="deletePolo(${p.id})" style="color:red; background:none; border:none; cursor:pointer; margin-left:10px;">Borrar</button>
@@ -59,7 +75,15 @@ async function saveProduct() {
     const nombre = document.getElementById('prodName').value.trim();
     const precio = document.getElementById('prodPrice').value;
     const descripcion = document.getElementById('prodDesc').value.trim();
+    const categoria = document.getElementById('prodCategoria').value;
     const file = document.getElementById('imgFileInput').files[0];
+
+    // Tallas seleccionadas
+    const tallasChecked = [...document.querySelectorAll('.talla-check:checked')].map(cb => cb.value);
+
+    // Colores ingresados
+    const coloresRaw = document.getElementById('prodColores').value.trim();
+    const colores = coloresRaw ? coloresRaw.split(',').map(c => c.trim()).filter(c => c) : [];
 
     if (!nombre || !precio) return showToast("⚠️ Llena nombre y precio");
 
@@ -67,9 +91,16 @@ async function saveProduct() {
     btn.innerText = "PROCESANDO...";
     btn.disabled = true;
 
-    let updateData = { nombre, precio: parseFloat(precio), descripcion };
+    let updateData = {
+        nombre,
+        precio: parseFloat(precio),
+        descripcion,
+        categoria,
+        tallas: tallasChecked,
+        colores: colores
+    };
 
-    // ✅ FIX: await correcto para subir imagen
+    // Subir imagen si hay archivo
     if (file) {
         const fileName = `polo_${Date.now()}.png`;
         const { error: uploadError } = await _supabase.storage
@@ -90,23 +121,47 @@ async function saveProduct() {
         updateData.imagen_url = urlData.publicUrl;
     }
 
+    let poloId = id;
     let error;
+
     if (id) {
         const res = await _supabase.from('polos').update(updateData).eq('id', id);
         error = res.error;
     } else {
-        const res = await _supabase.from('polos').insert([updateData]);
+        const res = await _supabase.from('polos').insert([updateData]).select();
         error = res.error;
+        if (!error && res.data && res.data.length > 0) {
+            poloId = res.data[0].id;
+        }
     }
 
     if (error) {
         showToast("❌ Error: " + error.message);
-    } else {
-        showToast(id ? "✅ Polo actualizado" : "✅ Polo agregado");
-        resetForm();
-        loadProducts();
-        loadInventory();
+        btn.innerText = "GUARDAR CAMBIOS";
+        btn.disabled = false;
+        return;
     }
+
+    // Guardar stock por talla y color
+    if (poloId && tallasChecked.length > 0 && colores.length > 0) {
+        for (const talla of tallasChecked) {
+            for (const color of colores) {
+                const stockInput = document.getElementById(`stock_${talla}_${color.replace(/\s/g,'_')}`);
+                const cantidad = stockInput ? parseInt(stockInput.value) || 0 : 0;
+                await _supabase.from('polo_stock').upsert({
+                    polo_id: parseInt(poloId),
+                    talla,
+                    color,
+                    cantidad
+                }, { onConflict: 'polo_id,talla,color' });
+            }
+        }
+    }
+
+    showToast(id ? "✅ Polo actualizado" : "✅ Polo agregado");
+    resetForm();
+    loadProducts();
+    loadInventory();
 
     btn.innerText = "GUARDAR CAMBIOS";
     btn.disabled = false;
@@ -130,8 +185,16 @@ function prepareEdit(polo) {
     document.getElementById('prodName').value = polo.nombre;
     document.getElementById('prodPrice').value = polo.precio;
     document.getElementById('prodDesc').value = polo.descripcion || '';
+    document.getElementById('prodCategoria').value = polo.categoria || 'Básico';
+    document.getElementById('prodColores').value = (polo.colores || []).join(', ');
     document.getElementById('fileLabel').innerHTML = "📷 Seleccionar nueva imagen (opcional)";
     document.getElementById('cancelEdit').style.display = 'block';
+
+    // Marcar tallas
+    document.querySelectorAll('.talla-check').forEach(cb => {
+        cb.checked = (polo.tallas || []).includes(cb.value);
+    });
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -141,107 +204,31 @@ function resetForm() {
     document.getElementById('prodName').value = "";
     document.getElementById('prodPrice').value = "";
     document.getElementById('prodDesc').value = "";
+    document.getElementById('prodCategoria').value = "Básico";
+    document.getElementById('prodColores').value = "";
     document.getElementById('imgFileInput').value = "";
     document.getElementById('fileLabel').innerHTML = "📷 Seleccionar Imagen";
     document.getElementById('cancelEdit').style.display = 'none';
+    document.querySelectorAll('.talla-check').forEach(cb => cb.checked = false);
 }
 
-// MODAL
-function openModal(polo) {
+// MODAL CON TALLAS Y COLORES
+async function openModal(polo) {
     selectedPolo = polo;
+    selectedColor = null;
+    selectedTalla = null;
+
     document.getElementById('modalImg').src = polo.imagen_url;
     document.getElementById('modalName').innerText = polo.nombre;
     document.getElementById('modalPrice').innerText = "S/ " + parseFloat(polo.precio).toFixed(2);
     document.getElementById('modalDesc').innerText = polo.descripcion || "Calidad Premium.";
-    document.getElementById('modalOverlay').classList.add('open');
-}
+    document.getElementById('modalCategoria').innerText = polo.categoria || "Básico";
+    document.getElementById('colorSeleccionado').innerText = "—";
+    document.getElementById('tallaSeleccionada').innerText = "—";
+    document.getElementById('stockWarning').style.display = 'none';
+    document.getElementById('tallaOptions').innerHTML = '';
+    document.getElementById('colorOptions').innerHTML = '';
 
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-}
-
-function addToCartFromModal() {
-    cart.push({ ...selectedPolo });
-    document.getElementById('cart-count').innerText = cart.length;
-    showToast("🛒 Añadido al carrito");
-    closeModal();
-}
-
-// ✅ CARRITO CON FOTOS
-function renderCart() {
-    const list = document.getElementById('cartItemsList');
-    const footer = document.getElementById('cartFooter');
-
-    if (cart.length === 0) {
-        list.innerHTML = "<p style='text-align:center; padding:40px; color:#999;'>Tu carrito está vacío.</p>";
-        footer.style.display = 'none';
-        return;
-    }
-
-    list.innerHTML = '';
-    footer.style.display = 'block';
-    let total = 0;
-
-    cart.forEach((p, index) => {
-        total += parseFloat(p.precio);
-        list.innerHTML += `
-            <div style="display:flex; align-items:center; gap:15px; padding:15px; border-bottom:1px solid #eee;">
-                <img src="${p.imagen_url}" 
-                     onerror="this.src='https://via.placeholder.com/70?text=?'"
-                     style="width:70px; height:70px; object-fit:cover; border-radius:8px; flex-shrink:0;">
-                <div style="flex-grow:1;">
-                    <p style="font-weight:600; margin-bottom:4px;">${p.nombre}</p>
-                    <p style="color:#666; font-size:14px;">S/ ${parseFloat(p.precio).toFixed(2)}</p>
-                </div>
-                <button onclick="removeFromCart(${index})" 
-                        style="background:none; border:none; cursor:pointer; font-size:18px; color:#999;">✕</button>
-            </div>`;
-    });
-
-    document.getElementById('cartTotalVal').innerText = `Total: S/ ${total.toFixed(2)}`;
-}
-
-// ✅ BONUS: función para eliminar del carrito
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    document.getElementById('cart-count').innerText = cart.length;
-    renderCart();
-    showToast("🗑️ Producto eliminado");
-}
-
-function sendWhatsApp() {
-    if (cart.length === 0) return showToast("⚠️ El carrito está vacío");
-    let msg = "¡Hola! Quiero hacer el siguiente pedido de POLO STUDIO:%0A%0A";
-    let total = 0;
-    cart.forEach(p => {
-        msg += `- ${p.nombre}: S/ ${parseFloat(p.precio).toFixed(2)}%0A`;
-        total += parseFloat(p.precio);
-    });
-    msg += `%0A*Total: S/ ${total.toFixed(2)}*`;
-    window.open(`https://wa.me/51900000000?text=${msg}`);
-}
-
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function updateLabel() {
-    const f = document.getElementById('imgFileInput').files[0];
-    if (f) document.getElementById('fileLabel').innerHTML = "✅ " + f.name;
-}
-
-// TRUCO ADMIN
-document.getElementById('secretLogo').addEventListener('click', () => {
-    secretClicks++;
-    if (secretClicks === 5) {
-        document.getElementById('tab-admin').style.setProperty('display', 'inline-block', 'important');
-        showToast("🛡️ Modo Admin activado");
-        secretClicks = 0;
-    }
-    setTimeout(() => { secretClicks = 0; }, 3000);
-});
-
-loadProducts();
+    // Cargar stock desde supabase
+    const { data: stockData } = await _supabase
+        .from('

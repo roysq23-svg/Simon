@@ -2,7 +2,7 @@
 // CONFIGURACIÓN SUPABASE
 // ==========================
 const SUPABASE_URL = 'https://nbcxafnjolasdmleqjhp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_0CmPrpHpz_iz8ZOI04uZ4A_VcNCpncN';
+const SUPABASE_KEY = 'sb_publishable_tv_jnG1KLW1zmmEeCvENmQ_hKBsoLy4';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ==========================

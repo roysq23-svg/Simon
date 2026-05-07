@@ -96,47 +96,56 @@
 
     <div id="toast" class="toast"></div>
 
-    <!-- MODAL DEL PRODUCTO -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <button class="close-modal" onclick="closeModal()">×</button>
+    <!-- MODAL DEL PRODUCTO - VERSIÓN RESPONSIVE MEJORADA -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="close-modal" onclick="closeModal()">×</button>
+        
+        <div class="modal-img-container">
             <img id="modalImg" class="modal-img" src="">
-            <div class="modal-content">
-                <span id="modalCategoria" class="modal-categoria"></span>
-                <h2 id="modalName"></h2>
-                <p id="modalPrice" class="modal-price"></p>
-                <p id="modalDesc" class="modal-desc"></p>
+        </div>
+        
+        <div class="modal-content">
+            <span id="modalCategoria" class="modal-categoria"></span>
+            <h2 id="modalName"></h2>
+            <p id="modalPrice" class="modal-price"></p>
+            <p id="modalDesc" class="modal-desc"></p>
 
-                <div class="selector-section">
-                    <p class="selector-label">🎨 Color: <span id="colorSeleccionado">—</span></p>
-                    <div id="colorOptions" class="color-options"></div>
-                </div>
-
-                <div class="selector-section">
-                    <p class="selector-label">📏 Talla: <span id="tallaSeleccionada">—</span></p>
-                    <div id="tallaOptions" class="talla-options"></div>
-                </div>
-
-                <div class="selector-section">
-                    <p class="selector-label">🔢 Cantidad: <span id="cantidadSeleccionada">1</span></p>
-                    <div style="display: flex; gap: 10px; align-items: center; justify-content: center;">
-                        <button type="button" onclick="cambiarCantidad(-1)" class="cantidad-btn">−</button>
-                        <span id="cantidadValue" style="font-size: 24px; font-weight: bold; min-width: 50px; text-align: center;">1</span>
-                        <button type="button" onclick="cambiarCantidad(1)" class="cantidad-btn">+</button>
-                    </div>
-                    <small style="display: block; text-align: center; margin-top: 8px; color: #666;">Máximo disponible: <span id="maxStock">0</span></small>
-                </div>
-
-                <div id="stockWarning" class="stock-warning" style="display:none;">
-                    ⚠️ Solo quedan <span id="stockNum"></span> unidades
-                </div>
-
-                <button class="btn-primary" id="btnAddCart" onclick="addToCartFromModal()">
-                    🛒 AÑADIR AL CARRITO
-                </button>
+            <!-- COLORES -->
+            <div class="selector-section">
+                <p class="selector-label">🎨 Color</p>
+                <div id="colorOptions" class="color-options"></div>
+                <p class="selected-value" id="colorSeleccionado">—</p>
             </div>
+
+            <!-- TALLAS -->
+            <div class="selector-section">
+                <p class="selector-label">📏 Talla</p>
+                <div id="tallaOptions" class="talla-options"></div>
+                <p class="selected-value" id="tallaSeleccionada">—</p>
+            </div>
+
+            <!-- SELECTOR DE CANTIDAD -->
+            <div class="selector-section">
+                <p class="selector-label">🔢 Cantidad</p>
+                <div class="cantidad-control">
+                    <button type="button" onclick="cambiarCantidad(-1)" class="cantidad-btn">−</button>
+                    <span id="cantidadValue" class="cantidad-numero">1</span>
+                    <button type="button" onclick="cambiarCantidad(1)" class="cantidad-btn">+</button>
+                </div>
+                <p class="stock-info">Máximo disponible: <span id="maxStock">0</span></p>
+            </div>
+
+            <div id="stockWarning" class="stock-warning" style="display:none;">
+                ⚠️ Solo quedan <span id="stockNum"></span> unidades
+            </div>
+
+            <button class="btn-primary" id="btnAddCart" onclick="addToCartFromModal()">
+                🛒 AÑADIR AL CARRITO
+            </button>
         </div>
     </div>
+</div>
 
     <!-- MODAL DE CONFIRMACIÓN (seguir comprando o ir al carrito) -->
     <div class="modal-overlay" id="confirmModalOverlay">

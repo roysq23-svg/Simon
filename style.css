@@ -197,3 +197,54 @@ nav { display: flex; justify-content: space-between; align-items: center; }
         padding: 20px;
     }
 }
+
+/* Estilos para formulario de administración */
+#prodCategoria {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    background: white;
+}
+
+#stockFieldsContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+#stockFieldsContainer th {
+    background: var(--black);
+    color: white;
+    padding: 8px;
+    text-align: center;
+}
+
+#stockFieldsContainer td {
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+#stockFieldsContainer input {
+    text-align: center;
+}
+
+/* Estilos para items del carrito */
+.cart-items {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Mejoras responsive */
+@media (max-width: 768px) {
+    #stockFieldsContainer {
+        overflow-x: auto;
+    }
+    
+    .color-circle {
+        width: 28px;
+        height: 28px;
+    }
+}

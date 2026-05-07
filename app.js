@@ -6,6 +6,8 @@ let cart = [];
 let selectedPolo = null;
 let selectedColor = null;
 let selectedTalla = null;
+let selectedCantidad = 1;
+let maxCantidadDisponible = 0;
 let currentStockData = [];
 
 // NAVEGACIÓN
@@ -67,7 +69,8 @@ async function loadProducts() {
                     <p>S/ ${parseFloat(p.precio).toFixed(2)}</p>
                     ${stockActual > 0 ? `<small style="color:green;">✅ ${stockActual} unidades</small>` : `<small style="color:red;">❌ Agotado</small>`}
                 </div>
-            </div>`;
+            </div>
+        `;
     });
 }
 
@@ -144,8 +147,40 @@ async function loadInventory() {
                 </div>
                 <button onclick='prepareEdit(${JSON.stringify(p)})' style="color:blue; background:none; border:none; cursor:pointer; font-size:20px;">✏️</button>
                 <button onclick="deletePolo(${p.id})" style="color:red; background:none; border:none; cursor:pointer; font-size:20px; margin-left:10px;">🗑️</button>
-            </div>`;
+            </div>
+        `;
     });
+}
+
+// GENERAR CAMPOS DE STOCK DINÁMICOS
+function generateStockFields() {
+    const tallas = [...document.querySelectorAll('.talla-check:checked')].map(cb => cb.value);
+    const coloresRaw = document.getElementById('prodColores').value.trim();
+    const colores = coloresRaw ? coloresRaw.split(',').map(c => c.trim()).filter(c => c) : [];
+    
+    const stockFieldsDiv = document.getElementById('stockFields');
+    const container = document.getElementById('stockFieldsContainer');
+    
+    if (!stockFieldsDiv || !container) return;
+    
+    if (tallas.length > 0 && colores.length > 0) {
+        container.style.display = 'block';
+        stockFieldsDiv.innerHTML = '<table style="width:100%; border-collapse:collapse;">';
+        stockFieldsDiv.innerHTML += '<tr><th>Color / Talla</th>' + tallas.map(t => `<th>${t}</th>`).join('') + '</tr>';
+        
+        colores.forEach(color => {
+            stockFieldsDiv.innerHTML += `<tr><td style="background:#f0f0f0; padding:5px;"><strong>${color}</strong></td>`;
+            tallas.forEach(talla => {
+                const fieldId = `stock_${talla}_${color.replace(/\s/g, '_')}`;
+                stockFieldsDiv.innerHTML += `<td style="padding:5px;"><input type="number" id="${fieldId}" value="0" min="0" style="width:70px; padding:5px;"></td>`;
+            });
+            stockFieldsDiv.innerHTML += '</tr>';
+        });
+        stockFieldsDiv.innerHTML += '</table>';
+    } else {
+        container.style.display = 'none';
+        stockFieldsDiv.innerHTML = '';
+    }
 }
 
 async function saveProduct() {
@@ -294,13 +329,15 @@ function resetForm() {
     document.querySelectorAll('.talla-check').forEach(cb => cb.checked = false);
 }
 
-// MODAL
+// MODAL PRINCIPAL
 async function openModal(polo) {
     console.log("Abriendo modal de:", polo.nombre);
     
     selectedPolo = polo;
     selectedColor = null;
     selectedTalla = null;
+    selectedCantidad = 1;
+    maxCantidadDisponible = polo.stock || 0;
 
     document.getElementById('modalImg').src = polo.imagen_url || 'https://via.placeholder.com/300';
     document.getElementById('modalName').innerText = polo.nombre;
@@ -310,8 +347,9 @@ async function openModal(polo) {
     document.getElementById('colorSeleccionado').innerText = "—";
     document.getElementById('tallaSeleccionada').innerText = "—";
     document.getElementById('stockWarning').style.display = 'none';
-    
-    currentStockData = [];
+    document.getElementById('cantidadValue').innerText = "1";
+    document.getElementById('cantidadSeleccionada').innerText = "1";
+    document.getElementById('maxStock').innerText = polo.stock || 0;
     
     const colorOptions = document.getElementById('colorOptions');
     colorOptions.innerHTML = '';
@@ -330,10 +368,10 @@ async function openModal(polo) {
         `;
     });
     
-    const tallas = polo.tallas || ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
     const tallaOptions = document.getElementById('tallaOptions');
     tallaOptions.innerHTML = '';
     
+    const tallas = polo.tallas || ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
     tallas.forEach(talla => {
         tallaOptions.innerHTML += `
             <button class="talla-btn" onclick="selectTalla('${talla}', ${polo.stock || 0})">
@@ -353,18 +391,28 @@ function selectColor(color) {
         circle.classList.remove('selected');
     });
     
-    event.target.classList.add('selected');
+    if (event && event.target) {
+        event.target.classList.add('selected');
+    }
 }
 
 function selectTalla(talla, stock) {
     selectedTalla = talla;
+    maxCantidadDisponible = stock;
+    selectedCantidad = 1;
+    
     document.getElementById('tallaSeleccionada').innerText = `${talla} (${stock} disponibles)`;
+    document.getElementById('maxStock').innerText = stock;
+    document.getElementById('cantidadValue').innerText = "1";
+    document.getElementById('cantidadSeleccionada').innerText = "1";
     
     document.querySelectorAll('.talla-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
     
-    event.target.classList.add('selected');
+    if (event && event.target) {
+        event.target.classList.add('selected');
+    }
     
     if (stock <= 5 && stock > 0) {
         document.getElementById('stockWarning').style.display = 'block';
@@ -372,6 +420,17 @@ function selectTalla(talla, stock) {
     } else {
         document.getElementById('stockWarning').style.display = 'none';
     }
+}
+
+function cambiarCantidad(delta) {
+    let nuevaCantidad = selectedCantidad + delta;
+    
+    if (nuevaCantidad < 1) nuevaCantidad = 1;
+    if (nuevaCantidad > maxCantidadDisponible) nuevaCantidad = maxCantidadDisponible;
+    
+    selectedCantidad = nuevaCantidad;
+    document.getElementById('cantidadValue').innerText = selectedCantidad;
+    document.getElementById('cantidadSeleccionada').innerText = selectedCantidad;
 }
 
 function addToCartFromModal() {
@@ -389,6 +448,11 @@ function addToCartFromModal() {
         return;
     }
     
+    if (selectedCantidad > selectedPolo.stock) {
+        showToast(`❌ Solo hay ${selectedPolo.stock} unidades disponibles`);
+        return;
+    }
+    
     const existingIndex = cart.findIndex(
         item => item.id === selectedPolo.id && 
                 item.color === selectedColor && 
@@ -396,7 +460,7 @@ function addToCartFromModal() {
     );
     
     if (existingIndex !== -1) {
-        cart[existingIndex].cantidad++;
+        cart[existingIndex].cantidad += selectedCantidad;
     } else {
         cart.push({
             id: selectedPolo.id,
@@ -404,19 +468,32 @@ function addToCartFromModal() {
             precio: parseFloat(selectedPolo.precio),
             color: selectedColor,
             talla: selectedTalla,
-            cantidad: 1
+            cantidad: selectedCantidad
         });
     }
     
     updateCartCount();
-    showToast(`✅ Añadido: ${selectedPolo.nombre} - ${selectedColor} - Talla ${selectedTalla}`);
     closeModal();
+    
+    // Mostrar modal de confirmación
+    document.getElementById('confirmMessage').innerHTML = `${selectedCantidad}x ${selectedPolo.nombre}<br><small>${selectedColor} / Talla ${selectedTalla}</small>`;
+    document.getElementById('confirmModalOverlay').classList.add('open');
 }
 
 function closeModal() {
     document.getElementById('modalOverlay').classList.remove('open');
     selectedColor = null;
     selectedTalla = null;
+    selectedCantidad = 1;
+}
+
+function closeConfirmModalAndContinue() {
+    document.getElementById('confirmModalOverlay').classList.remove('open');
+}
+
+function goToCartFromConfirm() {
+    document.getElementById('confirmModalOverlay').classList.remove('open');
+    switchTab('cart');
 }
 
 function renderCart() {
@@ -489,7 +566,7 @@ function sendWhatsApp() {
         mensaje += `• ${item.nombre} (${item.color} / Talla ${item.talla}) x${item.cantidad} = S/ ${subtotal.toFixed(2)}%0A`;
     });
     
-    mensaje += `%0a💰 *TOTAL: S/ ${total.toFixed(2)}*`;
+    mensaje += `%0A💰 *TOTAL: S/ ${total.toFixed(2)}*`;
     mensaje += "%0A%0A📦 Gracias por tu compra!";
     
     window.open(`https://wa.me/912334187?text=${mensaje}`, '_blank');
@@ -503,9 +580,17 @@ function showToast(msg) {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// INICIALIZAR
+// ESCUCHAR CAMBIOS EN TALLAS Y COLORES
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
+    
+    const tallaChecks = document.querySelectorAll('.talla-check');
+    const coloresInput = document.getElementById('prodColores');
+    
+    if (tallaChecks.length > 0) {
+        tallaChecks.forEach(cb => cb.addEventListener('change', generateStockFields));
+    }
+    if (coloresInput) coloresInput.addEventListener('input', generateStockFields);
     
     const logo = document.getElementById('secretLogo');
     if (logo) {
@@ -520,6 +605,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalOverlay) {
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) closeModal();
+        });
+    }
+    
+    const confirmModalOverlay = document.getElementById('confirmModalOverlay');
+    if (confirmModalOverlay) {
+        confirmModalOverlay.addEventListener('click', (e) => {
+            if (e.target === confirmModalOverlay) closeConfirmModalAndContinue();
         });
     }
 });

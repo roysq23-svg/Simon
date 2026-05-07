@@ -2,7 +2,7 @@
 <html lang="es"> 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>POLO STUDIO | Store & Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,11 +26,13 @@
     </header>
 
     <main>
+        <!-- PANEL TIENDA -->
         <section id="panel-store" class="panel active">
             <h2 class="section-title">Nuestra Colección</h2>
             <div class="products-grid" id="storeGrid"></div>
         </section>
 
+        <!-- PANEL CARRITO -->
         <section id="panel-cart" class="panel">
             <h2 class="section-title">Tu Pedido</h2>
             <div id="cartItemsList" class="max-width-container"></div>
@@ -40,6 +42,7 @@
             </div>
         </section>
 
+        <!-- PANEL ADMIN -->
         <section id="panel-admin" class="panel">
             <div class="admin-header">
                 <h2>PANEL DE CONTROL</h2>
@@ -82,6 +85,11 @@
                         <label><input type="checkbox" class="talla-check" value="XXL"> XXL</label>
                     </div>
                     
+                    <div id="stockFieldsContainer" style="display:none; margin-top:15px; border-top:2px solid #ddd; padding-top:15px;">
+                        <h4>Stock por Talla y Color</h4>
+                        <div id="stockFields"></div>
+                    </div>
+                    
                     <button class="btn-primary" id="saveBtn" onclick="saveProduct()">GUARDAR CAMBIOS</button>
                     <button id="cancelEdit" class="btn-cancel" onclick="resetForm()" style="display:none;">Cancelar Edición</button>
                 </div>
@@ -96,58 +104,53 @@
 
     <div id="toast" class="toast"></div>
 
-    <!-- MODAL DEL PRODUCTO - VERSIÓN RESPONSIVE MEJORADA -->
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <button class="close-modal" onclick="closeModal()">×</button>
-        
-        <div class="modal-img-container">
-            <img id="modalImg" class="modal-img" src="">
-        </div>
-        
-        <div class="modal-content">
-            <span id="modalCategoria" class="modal-categoria"></span>
-            <h2 id="modalName"></h2>
-            <p id="modalPrice" class="modal-price"></p>
-            <p id="modalDesc" class="modal-desc"></p>
-
-            <!-- COLORES -->
-            <div class="selector-section">
-                <p class="selector-label">🎨 Color</p>
-                <div id="colorOptions" class="color-options"></div>
-                <p class="selected-value" id="colorSeleccionado">—</p>
+    <!-- MODAL DEL PRODUCTO -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <div class="modal-img-container">
+                <img id="modalImg" class="modal-img" src="">
             </div>
+            <div class="modal-content">
+                <span id="modalCategoria" class="modal-categoria"></span>
+                <h2 id="modalName"></h2>
+                <p id="modalPrice" class="modal-price"></p>
+                <p id="modalDesc" class="modal-desc"></p>
 
-            <!-- TALLAS -->
-            <div class="selector-section">
-                <p class="selector-label">📏 Talla</p>
-                <div id="tallaOptions" class="talla-options"></div>
-                <p class="selected-value" id="tallaSeleccionada">—</p>
-            </div>
-
-            <!-- SELECTOR DE CANTIDAD -->
-            <div class="selector-section">
-                <p class="selector-label">🔢 Cantidad</p>
-                <div class="cantidad-control">
-                    <button type="button" onclick="cambiarCantidad(-1)" class="cantidad-btn">−</button>
-                    <span id="cantidadValue" class="cantidad-numero">1</span>
-                    <button type="button" onclick="cambiarCantidad(1)" class="cantidad-btn">+</button>
+                <div class="selector-section">
+                    <p class="selector-label">🎨 Color</p>
+                    <div id="colorOptions" class="color-options"></div>
+                    <p class="selected-value" id="colorSeleccionado">—</p>
                 </div>
-                <p class="stock-info">Máximo disponible: <span id="maxStock">0</span></p>
-            </div>
 
-            <div id="stockWarning" class="stock-warning" style="display:none;">
-                ⚠️ Solo quedan <span id="stockNum"></span> unidades
-            </div>
+                <div class="selector-section">
+                    <p class="selector-label">📏 Talla</p>
+                    <div id="tallaOptions" class="talla-options"></div>
+                    <p class="selected-value" id="tallaSeleccionada">—</p>
+                </div>
 
-            <button class="btn-primary" id="btnAddCart" onclick="addToCartFromModal()">
-                🛒 AÑADIR AL CARRITO
-            </button>
+                <div class="selector-section">
+                    <p class="selector-label">🔢 Cantidad</p>
+                    <div class="cantidad-control">
+                        <button type="button" onclick="cambiarCantidad(-1)" class="cantidad-btn">−</button>
+                        <span id="cantidadValue" class="cantidad-numero">1</span>
+                        <button type="button" onclick="cambiarCantidad(1)" class="cantidad-btn">+</button>
+                    </div>
+                    <p class="stock-info">Máximo disponible: <span id="maxStock">0</span></p>
+                </div>
+
+                <div id="stockWarning" class="stock-warning" style="display:none;">
+                    ⚠️ Solo quedan <span id="stockNum"></span> unidades
+                </div>
+
+                <button class="btn-primary" onclick="addToCartFromModal()">
+                    🛒 AÑADIR AL CARRITO
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-    <!-- MODAL DE CONFIRMACIÓN (seguir comprando o ir al carrito) -->
+    <!-- MODAL DE CONFIRMACIÓN -->
     <div class="modal-overlay" id="confirmModalOverlay">
         <div class="modal-small">
             <div class="modal-small-content">

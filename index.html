@@ -74,18 +74,38 @@
 
     <div id="toast" class="toast"></div>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <button class="close-modal" onclick="closeModal()">×</button>
-            <img id="modalImg" class="modal-img" src="">
-            <div class="modal-content">
-                <h2 id="modalName"></h2>
-                <p id="modalPrice" class="modal-price"></p>
-                <p id="modalDesc" class="modal-desc"></p>
-                <button class="btn-primary" onclick="addToCartFromModal()">AÑADIR AL CARRITO</button>
+   <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="close-modal" onclick="closeModal()">×</button>
+        <img id="modalImg" class="modal-img" src="">
+        <div class="modal-content">
+            <span id="modalCategoria" class="modal-categoria"></span>
+            <h2 id="modalName"></h2>
+            <p id="modalPrice" class="modal-price"></p>
+            <p id="modalDesc" class="modal-desc"></p>
+
+            <!-- COLORES -->
+            <div class="selector-section">
+                <p class="selector-label">Color: <span id="colorSeleccionado">—</span></p>
+                <div id="colorOptions" class="color-options"></div>
             </div>
+
+            <!-- TALLAS -->
+            <div class="selector-section">
+                <p class="selector-label">Talla: <span id="tallaSeleccionada">—</span></p>
+                <div id="tallaOptions" class="talla-options"></div>
+            </div>
+
+            <div id="stockWarning" class="stock-warning" style="display:none;">
+                ⚠️ Solo quedan <span id="stockNum"></span> unidades
+            </div>
+
+            <button class="btn-primary" id="btnAddCart" onclick="addToCartFromModal()">
+                AÑADIR AL CARRITO
+            </button>
         </div>
     </div>
+</div>
 
     <script src="app.js"></script>
 </body>

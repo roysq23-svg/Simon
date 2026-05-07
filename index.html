@@ -105,9 +105,66 @@
 
     <div id="toast" class="toast"></div>
 
-    <!-- Modales (mantengo los tuyos) -->
-    <div class="modal-overlay" id="modalOverlay"> ... (mantén todo tu código de modales) ... </div>
-    <div class="modal-overlay" id="confirmModalOverlay"> ... (mantén tu modal de confirmación) ... </div>
+    <!-- MODAL DEL PRODUCTO -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <div class="modal-img-container">
+                <img id="modalImg" class="modal-img" src="">
+            </div>
+            <div class="modal-content">
+                <span id="modalCategoria" class="modal-categoria"></span>
+                <h2 id="modalName"></h2>
+                <p id="modalPrice" class="modal-price"></p>
+                <p id="modalDesc" class="modal-desc"></p>
+
+                <div class="selector-section">
+                    <p class="selector-label">🎨 Color</p>
+                    <div id="colorOptions" class="color-options"></div>
+                    <p class="selected-value" id="colorSeleccionado">—</p>
+                </div>
+
+                <div class="selector-section">
+                    <p class="selector-label">📏 Talla</p>
+                    <div id="tallaOptions" class="talla-options"></div>
+                    <p class="selected-value" id="tallaSeleccionada">—</p>
+                </div>
+
+                <div class="selector-section">
+                    <p class="selector-label">🔢 Cantidad</p>
+                    <div class="cantidad-control">
+                        <button type="button" onclick="cambiarCantidad(-1)" class="cantidad-btn">−</button>
+                        <span id="cantidadValue" class="cantidad-numero">1</span>
+                        <button type="button" onclick="cambiarCantidad(1)" class="cantidad-btn">+</button>
+                    </div>
+                    <p class="stock-info">Máximo disponible: <span id="maxStock">0</span></p>
+                </div>
+
+                <div id="stockWarning" class="stock-warning" style="display:none;">
+                    ⚠️ Solo quedan <span id="stockNum"></span> unidades
+                </div>
+
+                <button class="btn-primary" onclick="addToCartFromModal()">
+                    🛒 AÑADIR AL CARRITO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div class="modal-overlay" id="confirmModalOverlay">
+        <div class="modal-small">
+            <div class="modal-small-content">
+                <div class="success-icon">✅</div>
+                <h3>¡Producto agregado!</h3>
+                <p id="confirmMessage"></p>
+                <div class="confirm-buttons">
+                    <button class="btn-secondary" onclick="closeConfirmModalAndContinue()">🛍️ Seguir comprando</button>
+                    <button class="btn-primary" onclick="goToCartFromConfirm()">🛒 Ir al carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

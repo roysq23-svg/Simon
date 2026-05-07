@@ -28,7 +28,28 @@
     <main>
         <!-- PANEL TIENDA -->
         <section id="panel-store" class="panel active">
+            <!-- Banner decorativo -->
+            <div class="hero-banner">
+                <h1>COLECCIÓN ESENCIAL</h1>
+                <p>Prendas que definen tu estilo</p>
+            </div>
+
             <h2 class="section-title">Nuestra Colección</h2>
+
+            <!-- Barra de búsqueda -->
+            <div class="search-bar-container">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre, color o categoría..." class="search-input">
+            </div>
+
+            <!-- Filtros por categoría -->
+            <div class="filtros-categorias">
+                <button class="cat-pill active" data-cat="todas">Todas</button>
+                <button class="cat-pill" data-cat="basico">Básico</button>
+                <button class="cat-pill" data-cat="premium">Premium</button>
+                <button class="cat-pill" data-cat="deportivo">Deportivo</button>
+                <button class="cat-pill" data-cat="edición limitada">Edición Limitada</button>
+            </div>
+
             <div class="products-grid" id="storeGrid"></div>
         </section>
 

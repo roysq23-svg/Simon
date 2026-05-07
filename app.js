@@ -1,5 +1,5 @@
 const supabaseUrl = 'https://nbcxafnjolasdmleqjhp.supabase.co';
-const supabaseKey = 'sb_publishable_0CmPrpHpz_iz8ZOI04uZ4A_VcNcp';
+const supabaseKey = 'sb_publishable_0CmPrpHpz_iz8ZOI04uZ4A_VcNCpncN';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 let cart = [];

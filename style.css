@@ -66,17 +66,11 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 
 /* Filtros */
 .filtros-categorias {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* oculta barra en Firefox */
-}
-.filtros-categorias::-webkit-scrollbar {
-    display: none; /* oculta barra en Chrome */
-}
-.cat-pill {
-    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
 }
 .cat-pill {
     background: #f0f0f0;

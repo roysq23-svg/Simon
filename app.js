@@ -1,49 +1,47 @@
-// 1. CONFIGURACIÓN DE SUPABASE
-// Reemplaza con tus credenciales exactas
+// CONFIGURACIÓN SUPABASE
 const supabaseUrl = 'https://nbcxafnjolasdmleqjhp.supabase.co';
-const supabaseKey = 'sb_publishable_0CmPrpHpz_iz8ZOI04uZ4A_VcNCpncN'; 
+const supabaseKey = 'sb_publishable_0CmPrpHpz_iz8ZOI04uZ4A_VcNCpncN'; // Tu clave de la captura
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// 2. ESTADO DE LA APLICACIÓN
 let cart = [];
 let selectedPolo = null;
 let secretClicks = 0;
 
-// --- FUNCIONES DE NAVEGACIÓN ---
+// --- SISTEMA DE NAVEGACIÓN (CORREGIDO) ---
 function switchTab(tabId) {
-    // Ocultar todos los paneles
+    // 1. Ocultar todos los paneles
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     
-    // Activar el panel seleccionado
+    // 2. Mostrar el panel actual
     const target = document.getElementById('panel-' + tabId);
-    if (target) target.classList.add('active');
-
-    // Cargas dinámicas según la pestaña
-    if (tabId === 'store') loadProducts();
-    if (tabId === 'cart') renderCart();
-    if (tabId === 'admin') loadInventory();
-
-    // Resetear el scroll al inicio
+    if (target) {
+        target.classList.add('active');
+        
+        // 3. ¡ESTO ARREGLA EL CARRITO VACÍO! 
+        // Dibujamos el carrito justo cuando el usuario entra a la pestaña
+        if (tabId === 'cart') {
+            renderCart();
+        }
+        // Si entra al admin, cargamos la lista para editar/borrar
+        if (tabId === 'admin') {
+            loadInventory();
+        }
+    }
     window.scrollTo(0, 0);
 }
 
-// --- GESTIÓN DE TIENDA (VISTA USUARIO) ---
+// --- TIENDA ---
 async function loadProducts() {
-    const { data: polos, error } = await _supabase
-        .from('polos')
-        .select('*')
-        .order('id', { ascending: false });
-
-    if (error) return console.error("Error al cargar productos:", error);
-
+    const { data: polos, error } = await _supabase.from('polos').select('*').order('id', { ascending: false });
+    if (error) return console.log(error);
+    
     const grid = document.getElementById('storeGrid');
-    if (!grid) return;
+    if(!grid) return;
     grid.innerHTML = '';
-
     polos.forEach(p => {
         grid.innerHTML += `
             <div class="product-card" onclick='openModal(${JSON.stringify(p)})'>
-                <img src="${p.imagen_url}" alt="${p.nombre}">
+                <img src="${p.imagen_url}">
                 <div class="product-info">
                     <h3>${p.nombre}</h3>
                     <p>S/ ${p.precio.toFixed(2)}</p>
@@ -52,149 +50,33 @@ async function loadProducts() {
     });
 }
 
-// --- GESTIÓN ADMIN (CRUD: EDITAR Y BORRAR) ---
-async function loadInventory() {
-    const { data: polos, error } = await _supabase
-        .from('polos')
-        .select('*')
-        .order('id', { ascending: false });
-
-    const container = document.getElementById('adminInventoryList');
-    if (!container) return;
-    container.innerHTML = '';
-
-    polos.forEach(p => {
-        container.innerHTML += `
-            <div class="inventory-item" style="display:flex; align-items:center; justify-content:space-between; background:white; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #eee;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img src="${p.imagen_url}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;">
-                    <span style="font-size:13px; font-weight:600;">${p.nombre}</span>
-                </div>
-                <div>
-                    <button onclick='prepareEdit(${JSON.stringify(p)})' style="color:blue; border:none; background:none; cursor:pointer; font-weight:700;">Editar</button>
-                    <button onclick="deletePolo(${p.id})" style="color:red; border:none; background:none; cursor:pointer; font-weight:700; margin-left:10px;">Borrar</button>
-                </div>
-            </div>`;
-    });
-}
-
-async function saveProduct() {
-    const id = document.getElementById('editPoloId').value;
-    const nombre = document.getElementById('prodName').value;
-    const precio = document.getElementById('prodPrice').value;
-    const descripcion = document.getElementById('prodDesc').value;
-    const file = document.getElementById('imgFileInput').files[0];
-
-    if (!nombre || !precio) return showToast("⚠️ Ingresa nombre y precio");
-
-    const btn = document.getElementById('saveBtn');
-    btn.innerText = "PROCESANDO..."; btn.disabled = true;
-
-    let updateData = { nombre, precio: parseFloat(precio), descripcion };
-
-    try {
-        if (file) {
-            const fileName = `polo_${Date.now()}.png`;
-            const { data: uploadData, error: upErr } = await _supabase.storage
-                .from('imagenes-polos')
-                .upload(fileName, file);
-            if (upErr) throw upErr;
-
-            const { data: urlData } = _supabase.storage.from('imagenes-polos').getPublicUrl(fileName);
-            updateData.imagen_url = urlData.publicUrl;
-        }
-
-        if (id) {
-            // EDITAR
-            await _supabase.from('polos').update(updateData).eq('id', id);
-        } else {
-            // CREAR NUEVO
-            if (!updateData.imagen_url) throw new Error("Falta la imagen");
-            await _supabase.from('polos').insert([updateData]);
-        }
-
-        showToast("✅ ¡Guardado con éxito!");
-        resetForm();
-        loadProducts();
-        loadInventory();
-    } catch (e) {
-        showToast("❌ Error: " + e.message);
-    } finally {
-        btn.innerText = "GUARDAR CAMBIOS"; btn.disabled = false;
-    }
-}
-
-async function deletePolo(id) {
-    if (!confirm("¿Seguro que quieres eliminar este producto?")) return;
-    const { error } = await _supabase.from('polos').delete().eq('id', id);
-    if (!error) {
-        showToast("🗑️ Polo eliminado");
-        loadInventory();
-        loadProducts();
-    }
-}
-
-function prepareEdit(polo) {
-    document.getElementById('formTitle').innerText = "📝 Editando: " + polo.nombre;
-    document.getElementById('editPoloId').value = polo.id;
-    document.getElementById('prodName').value = polo.nombre;
-    document.getElementById('prodPrice').value = polo.precio;
-    document.getElementById('prodDesc').value = polo.descripcion || '';
-    document.getElementById('cancelEdit').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function resetForm() {
-    document.getElementById('formTitle').innerText = "➕ Agregar Nuevo Polo";
-    document.getElementById('editPoloId').value = "";
-    document.getElementById('prodName').value = "";
-    document.getElementById('prodPrice').value = "";
-    document.getElementById('prodDesc').value = "";
-    document.getElementById('cancelEdit').style.display = 'none';
-    document.getElementById('fileLabel').innerText = "📷 Click para foto";
-}
-
-// --- CARRITO Y MODAL ---
-function openModal(polo) {
-    selectedPolo = polo;
-    document.getElementById('modalImg').src = polo.imagen_url;
-    document.getElementById('modalName').innerText = polo.nombre;
-    document.getElementById('modalPrice').innerText = "S/ " + polo.precio.toFixed(2);
-    document.getElementById('modalDesc').innerText = polo.descripcion || "Polo de alta calidad, diseño exclusivo.";
-    document.getElementById('modalOverlay').classList.add('open');
-}
-
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-}
-
-function addToCartFromModal() {
-    cart.push(selectedPolo);
-    document.getElementById('cart-count').innerText = cart.length;
-    showToast("🛒 ¡Añadido al carrito!");
-    closeModal();
-}
-
+// --- CARRITO (CORREGIDO) ---
 function renderCart() {
     const list = document.getElementById('cartItemsList');
     const footer = document.getElementById('cartFooter');
-
+    
     if (cart.length === 0) {
-        list.innerHTML = "<p style='text-align:center; padding:50px;'>Tu carrito está vacío.</p>";
+        list.innerHTML = "<div style='text-align:center; padding:50px; color:#666;'>Tu carrito está vacío.</div>";
         footer.style.display = 'none';
         return;
     }
 
-    list.innerHTML = '';
     footer.style.display = 'block';
+    list.innerHTML = '';
     let total = 0;
 
     cart.forEach((p, index) => {
         total += p.precio;
         list.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #eee; background:white; margin-bottom:10px; border-radius:8px;">
-                <span><strong>${p.nombre}</strong></span>
-                <span>S/ ${p.precio.toFixed(2)} <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer; margin-left:10px;">❌</button></span>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #eee; background:white; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="${p.imagen_url}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
+                    <div>
+                        <strong style="display:block;">${p.nombre}</strong>
+                        <small>S/ ${p.precio.toFixed(2)}</small>
+                    </div>
+                </div>
+                <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">Quitar</button>
             </div>`;
     });
 
@@ -204,50 +86,119 @@ function renderCart() {
 function removeFromCart(index) {
     cart.splice(index, 1);
     document.getElementById('cart-count').innerText = cart.length;
-    renderCart();
+    renderCart(); // Volver a dibujar
 }
 
-// --- WHATSAPP ---
-function sendWhatsApp() {
-    if (cart.length === 0) return;
+// --- ADMIN CRUD ---
+async function saveProduct() {
+    const id = document.getElementById('editPoloId').value;
+    const nombre = document.getElementById('prodName').value;
+    const precio = document.getElementById('prodPrice').value;
+    const descripcion = document.getElementById('prodDesc').value;
+    const file = document.getElementById('imgFileInput').files[0];
 
-    const miNumero = "912334187"; // Reemplaza con tu número real (51 + número)
-    let mensaje = "¡Hola! Quisiera realizar el siguiente pedido:%0A%0A";
-    let total = 0;
+    if (!nombre || !precio) return showToast("⚠️ Llena nombre y precio");
 
-    cart.forEach((p, i) => {
-        mensaje += `${i + 1}. *${p.nombre}* - S/ ${p.precio.toFixed(2)}%0A`;
-        total += p.precio;
+    const btn = document.getElementById('saveBtn');
+    btn.innerText = "SUBIENDO..."; btn.disabled = true;
+
+    try {
+        let updateData = { nombre, precio: parseFloat(precio), descripcion };
+
+        if (file) {
+            const fileName = `polo_${Date.now()}.png`;
+            const { data: uploadData, error: upErr } = await _supabase.storage.from('imagenes-polos').upload(fileName, file);
+            if (upErr) throw upErr;
+
+            const { data: urlData } = _supabase.storage.from('imagenes-polos').getPublicUrl(fileName);
+            updateData.imagen_url = urlData.publicUrl;
+        }
+
+        if (id) {
+            await _supabase.from('polos').update(updateData).eq('id', id);
+        } else {
+            if (!updateData.imagen_url) throw new Error("Falta la imagen");
+            await _supabase.from('polos').insert([updateData]);
+        }
+
+        showToast("✅ Producto guardado");
+        resetForm(); loadProducts(); loadInventory();
+    } catch (e) {
+        showToast("❌ Error: " + e.message);
+    } finally {
+        btn.innerText = "GUARDAR CAMBIOS"; btn.disabled = false;
+    }
+}
+
+async function loadInventory() {
+    const { data: polos } = await _supabase.from('polos').select('*').order('id', { ascending: false });
+    const list = document.getElementById('adminInventoryList');
+    list.innerHTML = '';
+    polos.forEach(p => {
+        list.innerHTML += `
+            <div class="inventory-item" style="display:flex; align-items:center; justify-content:space-between; background:white; padding:10px; margin-bottom:10px; border-radius:8px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img src="${p.imagen_url}" style="width:40px; height:40px; object-fit:cover;">
+                    <span style="font-size:12px;">${p.nombre}</span>
+                </div>
+                <div>
+                    <button onclick='prepareEdit(${JSON.stringify(p)})' style="color:blue; border:none; background:none; cursor:pointer;">Edit</button>
+                    <button onclick="deletePolo(${p.id})" style="color:red; border:none; background:none; cursor:pointer; margin-left:10px;">Borrar</button>
+                </div>
+            </div>`;
     });
+}
 
-    mensaje += `%0A💰 *TOTAL: S/ ${total.toFixed(2)}*%0A%0A¿Tienen disponibilidad?`;
-
-    window.open(`https://wa.me/${miNumero}?text=${mensaje}`, '_blank');
+async function deletePolo(id) {
+    if (!confirm("¿Borrar?")) return;
+    await _supabase.from('polos').delete().eq('id', id);
+    showToast("Eliminado");
+    loadInventory(); loadProducts();
 }
 
 // --- UTILIDADES ---
+function openModal(polo) {
+    selectedPolo = polo;
+    document.getElementById('modalImg').src = polo.imagen_url;
+    document.getElementById('modalName').innerText = polo.nombre;
+    document.getElementById('modalPrice').innerText = "S/ " + polo.precio.toFixed(2);
+    document.getElementById('modalDesc').innerText = polo.descripcion || "Polo Premium JOGRI.";
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function addToCartFromModal() {
+    cart.push(selectedPolo);
+    document.getElementById('cart-count').innerText = cart.length;
+    showToast("🛒 Añadido");
+    closeModal();
+}
+
+function sendWhatsApp() {
+    let msg = "¡Hola JOGRI! Mi pedido es:%0A%0A";
+    let total = 0;
+    cart.forEach(p => {
+        msg += `- ${p.nombre} (S/ ${p.precio.toFixed(2)})%0A`;
+        total += p.precio;
+    });
+    msg += `%0A*TOTAL: S/ ${total.toFixed(2)}*`;
+    window.open(`https://wa.me/912334187?text=${msg}`); // Reemplaza con tu número
+}
+
 function showToast(msg) {
     const t = document.getElementById('toast');
-    t.innerText = msg;
-    t.classList.add('show');
+    t.innerText = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-function updateLabel() {
-    const file = document.getElementById('imgFileInput').files[0];
-    if (file) document.getElementById('fileLabel').innerText = "✅ " + file.name;
-}
-
-// --- TRUCO DEL LOGO ---
 document.getElementById('secretLogo').addEventListener('click', () => {
     secretClicks++;
     if (secretClicks === 5) {
         document.getElementById('tab-admin').style.setProperty('display', 'inline-block', 'important');
-        showToast("🛠️ Modo Administrador Activado");
+        showToast("🔓 Modo Admin Activado");
         secretClicks = 0;
     }
-    setTimeout(() => { secretClicks = 0; }, 2500);
+    setTimeout(() => secretClicks = 0, 3000);
 });
 
-// INICIO
+// Carga inicial
 loadProducts();

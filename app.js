@@ -442,4 +442,84 @@ function renderCart() {
             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #ddd;">
                 <div>
                     <strong>${escapeHtml(item.nombre)}</strong><br>
-                    <small>${item.color} / Talla ${item.talla}</
+                    <small>${item.color} / Talla ${item.talla}</small>
+                </div>
+                <div>
+                    S/ ${item.precio.toFixed(2)} x ${item.cantidad}
+                </div>
+                <div>
+                    S/ ${subtotal.toFixed(2)}
+                    <button onclick="removeFromCart(${index})" style="margin-left:10px; background:#ff4444; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">✖</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    if (footer) {
+        footer.style.display = 'block';
+        const totalEl = document.getElementById('cartTotalVal');
+        if (totalEl) totalEl.innerText = `Total: S/ ${total.toFixed(2)}`;
+    }
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    renderCart();
+    updateCartCount();
+}
+
+function updateCartCount() {
+    const count = cart.reduce((sum, item) => sum + item.cantidad, 0);
+    const cartCountSpan = document.getElementById('cart-count');
+    if (cartCountSpan) cartCountSpan.innerText = count;
+}
+
+function sendWhatsApp() {
+    if (!cart.length) {
+        showToast("Carrito vacío");
+        return;
+    }
+    
+    let mensaje = "🛍️ *NUEVO PEDIDO - POLO STUDIO*%0A%0A";
+    let total = 0;
+    
+    cart.forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        mensaje += `• ${item.nombre} (${item.color} / Talla ${item.talla}) x${item.cantidad} = S/ ${subtotal.toFixed(2)}%0A`;
+    });
+    
+    mensaje += `%0a💰 *TOTAL: S/ ${total.toFixed(2)}*`;
+    mensaje += "%0A%0A📦 Gracias por tu compra!";
+    
+    window.open(`https://wa.me/51987654321?text=${mensaje}`, '_blank');
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// INICIALIZAR
+document.addEventListener('DOMContentLoaded', () => {
+    loadProducts();
+    
+    const logo = document.getElementById('secretLogo');
+    if (logo) {
+        logo.addEventListener('dblclick', () => {
+            const adminBtn = document.getElementById('tab-admin');
+            if (adminBtn) adminBtn.style.display = 'inline-block';
+            showToast("🔐 Modo Admin Activado");
+        });
+    }
+    
+    const modalOverlay = document.getElementById('modalOverlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+    }
+});

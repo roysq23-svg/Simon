@@ -17,7 +17,7 @@
             </div>
             <div class="menu">
                 <button onclick="switchTab('store')">Tienda</button>
-                <button id="tab-admin" onclick="switchTab('admin')" style="display:none !important;">Gestión</button>
+                <button id="tab-admin" onclick="switchTab('admin')" style="display:none;">Gestión</button>
                 <button class="cart-btn" onclick="switchTab('cart')">
                     🛒 <span id="cart-count">0</span>
                 </button>
@@ -57,11 +57,41 @@
                     <input type="file" id="imgFileInput" accept="image/*" hidden onchange="updateLabel()">
                     
                     <input type="text" id="prodName" placeholder="Nombre (Ej: Polo Oversize)">
-                    <input type="number" id="prodPrice" placeholder="Precio (Ej: 45.00)">
-                    <textarea id="prodDesc" placeholder="Descripción detallada..." rows="5"></textarea>
+                    <input type="number" id="prodPrice" placeholder="Precio (Ej: 45.00)" step="0.01">
+                    
+                    <!-- Categoría -->
+                    <select id="prodCategoria">
+                        <option value="Básico">Básico</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Edición Limitada">Edición Limitada</option>
+                        <option value="Deportivo">Deportivo</option>
+                    </select>
+                    
+                    <textarea id="prodDesc" placeholder="Descripción detallada..." rows="3"></textarea>
+                    
+                    <!-- Colores -->
+                    <label style="font-weight:600; margin-top:10px; display:block;">Colores (separados por coma)</label>
+                    <input type="text" id="prodColores" placeholder="Ej: Rojo, Azul, Negro, Blanco">
+                    
+                    <!-- Tallas con checkboxes -->
+                    <label style="font-weight:600; margin-top:10px; display:block;">Tallas disponibles</label>
+                    <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:15px;">
+                        <label><input type="checkbox" class="talla-check" value="XS"> XS</label>
+                        <label><input type="checkbox" class="talla-check" value="S"> S</label>
+                        <label><input type="checkbox" class="talla-check" value="M"> M</label>
+                        <label><input type="checkbox" class="talla-check" value="L"> L</label>
+                        <label><input type="checkbox" class="talla-check" value="XL"> XL</label>
+                        <label><input type="checkbox" class="talla-check" value="XXL"> XXL</label>
+                    </div>
+                    
+                    <!-- Stock por talla y color (se muestra dinámicamente) -->
+                    <div id="stockFieldsContainer" style="display:none; margin-top:15px; border-top:2px solid #ddd; padding-top:15px;">
+                        <h4>Stock por Talla y Color</h4>
+                        <div id="stockFields"></div>
+                    </div>
                     
                     <button class="btn-primary" id="saveBtn" onclick="saveProduct()">GUARDAR CAMBIOS</button>
-                    <button id="cancelEdit" class="btn-cancel" onclick="resetForm()">Cancelar Edición</button>
+                    <button id="cancelEdit" class="btn-cancel" onclick="resetForm()" style="display:none;">Cancelar Edición</button>
                 </div>
 
                 <div class="admin-card">
@@ -74,38 +104,38 @@
 
     <div id="toast" class="toast"></div>
 
-   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <button class="close-modal" onclick="closeModal()">×</button>
-        <img id="modalImg" class="modal-img" src="">
-        <div class="modal-content">
-            <span id="modalCategoria" class="modal-categoria"></span>
-            <h2 id="modalName"></h2>
-            <p id="modalPrice" class="modal-price"></p>
-            <p id="modalDesc" class="modal-desc"></p>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <img id="modalImg" class="modal-img" src="">
+            <div class="modal-content">
+                <span id="modalCategoria" class="modal-categoria"></span>
+                <h2 id="modalName"></h2>
+                <p id="modalPrice" class="modal-price"></p>
+                <p id="modalDesc" class="modal-desc"></p>
 
-            <!-- COLORES -->
-            <div class="selector-section">
-                <p class="selector-label">Color: <span id="colorSeleccionado">—</span></p>
-                <div id="colorOptions" class="color-options"></div>
+                <!-- COLORES -->
+                <div class="selector-section">
+                    <p class="selector-label">Color: <span id="colorSeleccionado">—</span></p>
+                    <div id="colorOptions" class="color-options"></div>
+                </div>
+
+                <!-- TALLAS -->
+                <div class="selector-section">
+                    <p class="selector-label">Talla: <span id="tallaSeleccionada">—</span></p>
+                    <div id="tallaOptions" class="talla-options"></div>
+                </div>
+
+                <div id="stockWarning" class="stock-warning" style="display:none;">
+                    ⚠️ Solo quedan <span id="stockNum"></span> unidades
+                </div>
+
+                <button class="btn-primary" id="btnAddCart" onclick="addToCartFromModal()">
+                    AÑADIR AL CARRITO
+                </button>
             </div>
-
-            <!-- TALLAS -->
-            <div class="selector-section">
-                <p class="selector-label">Talla: <span id="tallaSeleccionada">—</span></p>
-                <div id="tallaOptions" class="talla-options"></div>
-            </div>
-
-            <div id="stockWarning" class="stock-warning" style="display:none;">
-                ⚠️ Solo quedan <span id="stockNum"></span> unidades
-            </div>
-
-            <button class="btn-primary" id="btnAddCart" onclick="addToCartFromModal()">
-                AÑADIR AL CARRITO
-            </button>
         </div>
     </div>
-
 
     <script src="app.js"></script>
 </body>

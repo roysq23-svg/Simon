@@ -211,7 +211,7 @@ function removeFromCart(index) {
 function sendWhatsApp() {
     if (cart.length === 0) return;
 
-    const miNumero = "51900000000"; // Reemplaza con tu número real (51 + número)
+    const miNumero = "912334187"; // Reemplaza con tu número real (51 + número)
     let mensaje = "¡Hola! Quisiera realizar el siguiente pedido:%0A%0A";
     let total = 0;
 

@@ -164,6 +164,19 @@ function openModal(polo) {
     document.getElementById('modalPrice').innerText = "S/ " + polo.precio.toFixed(2);
     document.getElementById('modalDesc').innerText = polo.descripcion || "Polo Premium JOGRI.";
     document.getElementById('modalOverlay').classList.add('open');
+    // Mostramos el modal
+    const modal = document.getElementById('modalOverlay');
+    modal.classList.add('open');
+
+    // OPCIONAL: Si no tienes una "X" en el HTML, puedes cerrar haciendo clic fuera
+    modal.onclick = function(e) {
+        if (e.target === modal) closeModal();
+    };
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+
 }
 
 function addToCartFromModal() {

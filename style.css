@@ -191,8 +191,50 @@ nav { display: flex; justify-content: space-between; align-items: center; }
     .cantidad-numero { font-size: 22px; }
     .confirm-buttons { flex-direction: column; }
     .confirm-buttons button { width: 100%; }
-    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
     .admin-grid { grid-template-columns: 1fr; }
+
+    /* MEJORAS MÓVIL */
+    .products-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 12px;
+        padding: 0 10px;
+    }
+    .product-card img { 
+        height: 180px; 
+    }
+    .product-info { 
+        padding: 10px; 
+    }
+    .product-info h3 { 
+        font-size: 12px; 
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis; 
+    }
+    .product-info p { 
+        font-size: 13px; 
+        font-weight: 700; 
+    }
+    .filtros-categorias { 
+        flex-wrap: nowrap; 
+        overflow-x: auto; 
+        justify-content: flex-start; 
+        padding: 0 10px 8px 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .filtros-categorias::-webkit-scrollbar { display: none; }
+    .cat-pill { 
+        white-space: nowrap; 
+        flex-shrink: 0; 
+    }
+    .hero-banner { 
+        margin: 0 0 20px 0; 
+        border-radius: 0; 
+        padding: 30px 15px; 
+    }
+    .hero-banner h1 { font-size: 1.4rem; }
+    .section-title { font-size: 22px; margin-bottom: 20px; }
+    .panel { padding: 20px 3%; }
 }
 
 @media (min-width: 551px) and (max-width: 768px) {

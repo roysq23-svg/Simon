@@ -17,7 +17,7 @@ function switchTab(tabId) {
     if (tabId === 'cart') renderCart();
     window.scrollTo(0, 0);
 }
-
+ 
 // ACTUALIZAR LABEL DE IMAGEN
 function updateLabel() {
     const file = document.getElementById('imgFileInput').files[0];
